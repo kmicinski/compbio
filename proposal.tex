@@ -1,0 +1,74 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage{qtree}
+\usepackage{proof}
+\usepackage{url}
+\usepackage{biblatex}
+\bibliography{proposal}
+
+\title{RNA-seq in Julia}
+\author{James Parker}
+\author{Matthew Mauirello}
+\author{Kristopher Micinski}
+
+\begin{document}
+\maketitle
+
+\section{Project Description}
+
+Our project explores the Julia language for scientific computing, and
+adds support for computing with RNA sequencing data.
+
+Currently, the Julia language has relatively few packages.  It does
+include a \texttt{BioSeq} \cite{bioseq} package, but it appears to
+only include limited functionality for biological computing.  In our
+project, we will first explore this library and determine it's
+applicability to problems from homework examples: specifically the
+RNA-seq problems from homework 1.  While doing so, we will implement
+additional features (not currently implemented in \texttt{BioSeq})
+required to complete the homework problems.
+
+We anticipate adding support for types such as \texttt{GRanges} and
+BAM file parsing to Julia.  The result of our project will be a
+solution manual to homework questions, as well as the Julia library
+(with accompanying documentation).  Our Julia code will be developed
+in a public\footnote{\url{https://github.com/kmicinski/compbio}} git
+repository.
+
+To study the Julia language, we will read the public documentation and
+associated papers \cite{juliapaper}.  Because we are replicating part
+of the \texttt{BioConductor} package in R \cite{bioconductor}, we will
+also read the associated documentation for the necessary classes.
+
+To test that our libraries are correct, we will develop both a set of
+unit tests and check our solutions for the homework against the
+correct solutions for homework 1.  We will use the same data as used
+for the homework.
+
+\section{Timeline}
+
+\begin{description}
+\item[April $5^{th}$] Read all of the references (Julia paper) and work
+  through relevant examples from Julia tutorials given on the homepage
+  and elsewhere.
+
+\item[April $19^{th}$] Preliminary implementation of the project
+  complete.  Able to complete the homework as given in the assignment.
+  May not have all unit tests and documentation written.  Progress
+  report completed.
+
+\item[April $26^{th}$] Documentation and unit tests for the project
+  completed.  Polished solutions to the homework packaged, as well as
+  code documented.
+
+\item[May $6^{th}$] Project presentation complete.
+
+\item[May $10^{th}$] Final project writeup packaged and distributed,
+  including webpage to describe project.
+
+\end{description}
+
+\end{document}
+
+
