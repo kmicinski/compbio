@@ -23,14 +23,14 @@ adds support for computing with RNA sequencing data.
 Currently, the Julia language has relatively few packages.  It does
 include a \texttt{BioSeq} \cite{bioseq} package, but it appears to
 only include limited functionality for biological computing.  In our
-project, we will first explore this library and determine it's
+project, we will first explore this library and determine its
 applicability to problems from homework examples: specifically the
 RNA-seq problems from homework 1.  While doing so, we will implement
-additional features (not currently implemented in \texttt{BioSeq})
-required to complete the homework problems.
+additional features not currently implemented in \texttt{BioSeq}, which
+are required to complete the homework problems.
 
 We anticipate adding support for types such as \texttt{GRanges} and
-BAM file parsing to Julia.  The result of our project will be a
+implementing BAM file parsing to Julia.  The result of our project will be a
 solution manual to homework questions, as well as the Julia library
 (with accompanying documentation).  Our Julia code will be developed
 in a public\footnote{\url{https://github.com/kmicinski/compbio}} git
@@ -43,8 +43,9 @@ also read the associated documentation for the necessary classes.
 
 To test that our libraries are correct, we will develop both a set of
 unit tests and check our solutions for the homework against the
-correct solutions for homework 1.  We will use the same data as used
-for the homework.
+correct solutions for homework 1.  We will also benchmark our 
+implementation to compare performance between Julia and R. 
+We will use the same data as used for the homework.
 
 \section{Timeline}
 
