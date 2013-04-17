@@ -10,6 +10,7 @@
 
 
 # IRanges type; poorly approximated - not sure what needs to be in here.
+# TO DO: Change 'type' to  'Immutable'?
 type IRanges
     start::Int
     finish::Int
@@ -19,6 +20,7 @@ end
 
 # GRanges type; poorly approximated
 # TO DO: Write simple constructor? Seperate into metadata and GRange data using matrix structure.
+# TO DO: Change 'type' to  'Immutable'?
 type GRanges
     seqnames::Array{ASCIIString}
     ranges::Array{IRanges}
