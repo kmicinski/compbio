@@ -1,0 +1,134 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage{qtree}
+\usepackage{proof}
+\usepackage{url}
+\usepackage{ulem}
+%\usepackage{biblatex}
+%\bibliography{progress report}
+
+\title{RNA-seq in Julia}
+\author{James Parker}
+\author{Matthew Mauirello}
+\author{Kristopher Micinski}
+
+\begin{document}
+\maketitle
+
+\section{Progress Report}
+
+\subsection{Abstract}
+
+Traditionally, genomics research has used loosely typed, dynamic languages 
+(such as R) for analyzing and processing data.  These languages are less 
+performant than traditional general purpose programming languages (such as Java or C++), 
+but offer more flexibility for scriptable (interactive) processing.   Recently, the Julia language 
+has emerged as a best of both worlds: a strong nominal type system with minimal syntax 
+(allowing for concise scripting, appropriate for research settings) and efficient performance (as it is JIT 
+compiled to LLVM).  However, although this language provides a rich type system to express 
+biological research, the main selling point of dynamic languages (such as R) remains the prevalence 
+of libraries to analyze data.
+
+Our project adds to Julia a library to analyze genomic data and perform numerous computations 
+germane to research. Our library allows:
+
+\begin{enumerate}
+\item The representation of genomic ranges and intervals, including calculation of 
+union intersection genes, and other functions to manipulate these constructs.
+\item Parsing of BAM files, allowing them to be held as memory mapped representations 
+mentioned in point 1.
+\item Calculation of various genomic functions, such as overlap regions between sets of 
+genomic range data.
+\end{enumerate}
+
+Our library is implemented as an extension to the currently existing Julia facilities for 
+dealing with biological data: the \texttt{BioSeq} library \footnote{https://github.com/diegozea/BioSeq.jl}.  
+While \texttt{BioSeq} currently supports some biological primitives (such as representing DNA and proteins) 
+and operations using them (converting DNA to RNA, reverse complement, etc), it 
+does not include support for calculating union intersection genes.  We also implement 
+parsing BAM files into Julia objects, by using Julia's FFI capabilities to do parsing using the 
+SAMtools library\footnote{http://samtools.sourceforge.net/}.
+
+Currently, each of the group members has read the Julia language manual, and we have contacted 
+the Julia developers to inform them of the project's directions and solicit help getting a working installation 
+of the latest (v0.2) Julia branch\footnote{The current language includes a number of useful facilities, such as 
+immutable values, memory mapped arrays, etc...}.  We have began to read about FFI and look into using 
+SAMtools to parse BAM files (using the files from the homework as an example) and have started writing 
+type signatures for basic operations on genomic ranges values (represented by the \texttt{GRanges} object 
+in BioConductor).
+
+\section{Existing Work}
+
+Currently, the Julia language has relatively few packages.  It does
+include a \texttt{BioSeq} \cite{bioseq} package, but it
+only includes limited functionality for biological computing.  
+Other libraries exist for performing biological computations in other languages.
+A few examples of these libraries include the \texttt{BioConductor} \cite{bioseq} package for R and the \texttt{BioPerl} \cite{bioperl}  package for Perl. Do to familiarity, we use \texttt{BioConductor} as our primary comparison to our implementation in Julia.
+
+% KRIS: http://www.bioperl.org/wiki/Main_Page
+
+\section{Methods and tools}
+
+Our tools used during development include Julia version 0.2 and the IDE JuliaStudio. We will also leverage applicable features from the current \texttt{BioSeq} package. We may also end up using functionality provided by SAMtools to parse BAM files.
+Upon completing our implementation, we will use the data from homework 1. With this data, we will compare our implementations' output with that of \texttt{BioConductor}'s to verify correctness. We will also perform basic benchmarking to rank the performance of each library.
+
+%
+%Our project explores the Julia language for scientific computing, and
+%adds support for computing with RNA sequencing data.
+%
+%Currently, the Julia language has relatively few packages.  It does
+%include a \texttt{BioSeq} \cite{bioseq} package, but it appears to
+%only include limited functionality for biological computing.  In our
+%project, we will first explore this library and determine its
+%applicability to problems from homework examples: specifically the
+%RNA-seq problems from homework 1.  While doing so, we will implement
+%additional features not currently implemented in \texttt{BioSeq}, which
+%are required to complete the homework problems.
+%
+%We anticipate adding support for types such as \texttt{GRanges} and
+%implementing BAM file parsing to Julia.  The result of our project will be a
+%solution manual to homework questions, as well as the Julia library
+%(with accompanying documentation).  Our Julia code will be developed
+%in a public\footnote{\url{https://github.com/kmicinski/compbio}} git
+%repository.
+%
+%To study the Julia language, we will read the public documentation and
+%associated papers \cite{juliapaper}.  Because we are replicating part
+%of the \texttt{BioConductor} package in R \cite{bioconductor}, we will
+%also read the associated documentation for the necessary classes.
+%
+%To test that our libraries are correct, we will develop both a set of
+%unit tests and check our solutions for the homework against the
+%correct solutions for homework 1.  We will also benchmark our 
+%implementation to compare performance between Julia and R. 
+%We will use the same data as used for the homework.
+%
+\section{Updated Timeline}
+
+\begin{description}
+\item[April $5^{th}$] \sout{Read all of the references (Julia paper) and work
+  through relevant examples from Julia tutorials given on the homepage
+  and elsewhere.}
+
+\item[April $15^{th}$] \sout{Changed scope of project to implement memory mapped BAM file parsing, represent genomic ranges, and perform overlap querying. }
+
+\item[April $19^{th}$] \sout{Progress report completed.}
+
+\item[April $26^{th}$] Preliminary implementation of the project
+  complete. May not have all unit tests and documentation written.  
+
+\item[May $1^{th}$] Documentation and unit tests for the project
+  completed.  Polished solutions to the homework packaged, as well as
+  code documented.
+
+\item[May $6^{th}$] Project presentation complete.
+
+\item[May $10^{th}$] Final project writeup packaged and distributed,
+  including webpage to describe project.
+
+\end{description}
+
+\end{document}
+
+
