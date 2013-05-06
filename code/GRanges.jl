@@ -22,6 +22,7 @@ end
 # TO DO: Write simple constructor? Seperate into metadata and GRange data using matrix structure.
 # TO DO: Change 'type' to  'Immutable'?
 type GRanges
+    names::Array{ASCIIString}
     seqnames::Array{ASCIIString}
     ranges::Array{IRanges}
     strand::Array{Char}
@@ -34,10 +35,10 @@ end
 # automated some of these fields, maybe?
 function show(gr::GRanges)
     println(string("\tGRanges with ", length(gr.seqnames)," ranges and ", 2, " metadata columns:"))
-    println("\tseqnames \tranges \t\tstrand \t | \tscore \tGC")
-    println("\t<ASCIIString> \t<IRanges> \t<Char> \t | \t<Int> \t<Float64>")
+    println("\t\tseqnames \tranges \t\tstrand \t | \tscore \tGC")
+    println("\t\t<ASCIIString> \t<IRanges> \t<Char> \t | \t<Int> \t<Float64>")
     for i = 1:length(gr.seqnames)
-        println(string("\t", gr.seqnames[i], "\t\t", "[",gr.ranges[i].start, " ", gr.ranges[i].finish,"]", "\t\t", gr.strand[i], "\t | \t", gr.score[i], "\t", gr.GC[i]))
+        println(string("\t", gr.names[i],"\t", gr.seqnames[i], "\t\t", "[",gr.ranges[i].start, " ", gr.ranges[i].finish,"]", "\t\t", gr.strand[i], "\t | \t", gr.score[i], "\t", gr.GC[i]))
     end
     println("\t---")
     print("\tseqlengths:")
@@ -80,6 +81,12 @@ function seqnames(gr::GRanges)
 end
 
 function ranges(gr::GRanges)
+    print("\tIRanges of length: ");
+    println(length(gr.seqnames));
+    println("\t\tstart\tend\twidth\tnames");
+    for i = 1:length(gr.seqnames)
+        println(string("\t[", i, "]\t",gr.ranges[i].start, "\t", gr.ranges[i].finish, "\t", ((gr.ranges[i].finish - gr.ranges[i].start) + 1), "\t", gr.names[i]));
+    end
 end
 
 function strand(gr::GRanges)
@@ -90,6 +97,10 @@ end
 function mcols(gr::GRanges)
 end
 
+
+function seqlengths(gr::GRanges)
+end
+
 function names(gr::GRanges)
 end
 
@@ -97,6 +108,79 @@ end
 function len(gr::GRanges)
 end
 
+function splitGRanges(gr::GRanges, each::Int)
+end
+
+function c(gr::GRanges, br::GRanges)
+end
+
+#TO DO: Define Subsetting method
+
+#TO DO: Define seqselect method
+
+function head(gr::GRanges, n::Int)
+end
+
+function rep(gr::GRanges, times::Int)
+end
+
+function rev(gr::GRanges)
+end
+
+function tail(gr::GRanges, n::Int)
+end
+
+function window(gr::GRanges, start::Int, finish::Int)
+end
+
+function start(gr::GRanges)
+end
+
+function finish(gr::GRanges)
+end
+
+function width(gr::GRanges)
+end
+
+function range(gr::GRanges)
+end
+
+function flank(gr::GRanges, n::Int, start::Bool)
+end
+
+function shift(gr::GRanges, n::Int)
+end
+
+function resize(gr::GRanges, n::Int)
+end
+
+function reduce(gr::GRanges)
+end
+
+function gaps(gr::GRanges)
+end
+
+function disjoin(gr::GRanges)
+end
+
+function converage(gr::GRanges)
+end
+
+function union(gr::GRanges, br::GRanges)
+end
+
+function intersect(gr::GRanges, br::GRanges)
+end
+
+function setdiff(gr::GRanges, br::GRanges)
+end
+
+# TO DO: Investigate "p" methods.
+
+# TO DO: Investigate GRangesList.
+
+# TO DO: Investigate Gapped Alignments.
+
 # Example usage:
-gr = GRanges(["chr1", "chr2", "chr3"], [IRanges(0,0,0,0), IRanges(0,0,0,0), IRanges(0,0,0,0)] , ['+','-','*'] , [1,2,3],  [0.0,0.0,0.0])
+gr = GRanges(["a", "b", "c"],["chr1", "chr2", "chr3"], [IRanges(1,7,7-1,0), IRanges(0,0,0,0), IRanges(0,0,0,0)] , ['+','-','*'] , [1,2,3],  [0.0,0.0,0.0])
 
