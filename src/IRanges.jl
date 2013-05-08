@@ -8,10 +8,10 @@
 #   Matthew Mauriello
 #
 
-module IRanges
+module Ranges
 using Option
 
-export # TODO: make sure everything we need is exported.
+export IRange, IRanges, indexNames!, start, finish, width # TODO: make sure everything we need is exported.
 
 # IRange data structure. Represents an integer interval with an optional name.
 type IRange
@@ -21,7 +21,7 @@ type IRange
 	name::option(String)
 
 	# Constructor for IRange. It checks that finish >= start. The name argument is optional and defaults to None.
-	IRange( start, finish, name=None) = begin
+	IRange( start, finish, name) = begin
 		if ( finish < start)
 			error( "Finish must be greater than or equal to start.")
 		end
@@ -30,9 +30,19 @@ type IRange
 	end
 end
 
+# Define equality for IRange as equal when both endpoints are equal.
+function isequal( r1::IRange, r2::IRange)
+	(r1.start == r2.start) && (r1.finish == r2.finish)
+end
+
+# A stupid comparison that just checks if r2.start is less than r2.start.
+function isless( r1::IRange, r2::IRange)
+	r1.start < r2.start
+end
+
 # IRanges data structure.
 type IRanges
-	iranges::Vector{IRange}
+	iranges::Vector{IRange} # Should this be changed to a btree???
 	nameDict::option(Dict{String,Int}) # Maps names to an IRange index. Names must be unique and present in the iranges vector.
 
 	IRanges( iranges::Vector{IRange}, index::Bool) = begin
@@ -47,7 +57,7 @@ type IRanges
 end
 
 # Many operations like merge, disjoin, etc obliterate this index so only create index when finished manipulating iranges.
-function indexNames!( iranges:IRanges)
+function indexNames!( iranges::IRanges)
 	if !isNone( iranges.nameDict)
 		error( "name index already exists")
 	end
@@ -71,6 +81,18 @@ function indexNames!( iranges:IRanges)
 	end
 		
 	iranges.nameDict = dict
+end
+
+function start( ranges::IRanges)
+	[ range.start for range in ranges.iranges ]
+end
+
+function finish( ranges::IRanges)
+	[ range.finish for range in ranges.iranges ]
+end
+
+function width( ranges::IRanges)
+	[ range.width for range in ranges.iranges ]
 end
 
 end
