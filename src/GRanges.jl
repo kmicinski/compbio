@@ -1,4 +1,4 @@
-# GRanges/IRanges Class for Julia BioSeq
+# GRanges Class for Julia BioSeq
 #   Modeled after original BioConductor documentation
 #   :http://www.bioconductor.org/packages/release/bioc/vignettes/GenomicRanges/inst/doc/GenomicRangesIntroduction.pdf
 #
@@ -9,25 +9,40 @@
 #
 
 
-# IRanges type; poorly approximated - not sure what needs to be in here.
-# TO DO: Change 'type' to  'Immutable'?
-type IRanges
-    start::Int
-    finish::Int
-    width::Int
-    names::Int
-end
+
+module GRangesMod
+
+require("IRanges")
+
+
+export GRange, GRanges
+
 
 # GRanges type; poorly approximated
 # TO DO: Write simple constructor? Seperate into metadata and GRange data using matrix structure.
 # TO DO: Change 'type' to  'Immutable'?
+type GRange
+    seqname::ASCIIString
+    range::IRange
+    strand::Char
+    score::Int #This is suppose to be metadata
+    GC::Float64 #This is suppoe to be meatadata
+
+    # Constructor
+    GRange(seqname, ranges, strand, score, gc) = begin
+        new (seqname, range, strand, score, GC)
+    end
+
+end
+
 type GRanges
-    names::Array{ASCIIString}
-    seqnames::Array{ASCIIString}
-    ranges::Array{IRanges}
-    strand::Array{Char}
-    score::Array{Int} #This is suppose to be metadata
-    GC::Array{Float64} #This is suppoe to be meatadata
+    granges::Vector{GRange}
+
+    #Constructor
+    GRanges( granges::Vector{GRange}) = begin
+        new(granges)
+    end
+
 end
 
 # Show the structure and data contained within the GRanges object; decently approximated
@@ -182,5 +197,6 @@ end
 # TO DO: Investigate Gapped Alignments.
 
 # Example usage:
-gr = GRanges(["a", "b", "c"],["chr1", "chr2", "chr3"], [IRanges(1,7,7-1,0), IRanges(0,0,0,0), IRanges(0,0,0,0)] , ['+','-','*'] , [1,2,3],  [0.0,0.0,0.0])
+#gr = GRanges(["a", "b", "c"],["chr1", "chr2", "chr3"], [IRanges(1,7,7-1,0), IRanges(0,0,0,0), IRanges(0,0,0,0)] , ['+','-','*'] , [1,2,3],  [0.0,0.0,0.0])
 
+end
