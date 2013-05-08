@@ -22,7 +22,7 @@ type GRange
     GC::Float64 #This is suppoe to be meatadata
 
     # Constructor
-    GRange(seqname, ranges, strand, score, gc) = begin
+    GRange(seqname, range, strand, score, GC) = begin
         new (seqname, range, strand, score, GC)
     end
 
