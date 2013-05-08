@@ -8,13 +8,6 @@
 #   Matthew Mauriello
 #
 
-
-
-module GRangesMod
-
-require("IRanges")
-
-
 export GRange, GRanges
 
 
@@ -22,7 +15,7 @@ export GRange, GRanges
 # TO DO: Write simple constructor? Seperate into metadata and GRange data using matrix structure.
 # TO DO: Change 'type' to  'Immutable'?
 type GRange
-    seqname::ASCIIString
+    seqname::String
     range::IRange
     strand::Char
     score::Int #This is suppose to be metadata
@@ -199,4 +192,3 @@ end
 # Example usage:
 #gr = GRanges(["a", "b", "c"],["chr1", "chr2", "chr3"], [IRanges(1,7,7-1,0), IRanges(0,0,0,0), IRanges(0,0,0,0)] , ['+','-','*'] , [1,2,3],  [0.0,0.0,0.0])
 
-end

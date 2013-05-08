@@ -8,9 +8,6 @@
 #   Matthew Mauriello
 #
 
-module Ranges
-using Option
-
 export IRange, IRanges, indexNames!, start, finish, width # TODO: make sure everything we need is exported.
 
 # IRange data structure. Represents an integer interval with an optional name.
@@ -95,4 +92,3 @@ function width( ranges::IRanges)
 	[ range.width for range in ranges.iranges ]
 end
 
-end
