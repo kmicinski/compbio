@@ -8,7 +8,7 @@
 #   Matthew Mauriello
 #
 
-export GRange, GRanges
+export GRange, GRanges, show
 
 
 # GRanges type; poorly approximated
@@ -42,20 +42,20 @@ end
 # This is all assigned directly at initialization; however, you could imagine a constructor that
 # automated some of these fields, maybe?
 function show(gr::GRanges)
-    println(string("\tGRanges with ", length(gr.seqnames)," ranges and ", 2, " metadata columns:"))
+    println(string("\tGRanges with ", length(gr.granges)," ranges and ", 2, " metadata columns:"))
     println("\t\tseqnames \tranges \t\tstrand \t | \tscore \tGC")
     println("\t\t<ASCIIString> \t<IRanges> \t<Char> \t | \t<Int> \t<Float64>")
-    for i = 1:length(gr.seqnames)
-        println(string("\t", gr.names[i],"\t", gr.seqnames[i], "\t\t", "[",gr.ranges[i].start, " ", gr.ranges[i].finish,"]", "\t\t", gr.strand[i], "\t | \t", gr.score[i], "\t", gr.GC[i]))
+    for i = 1:length(gr.granges)
+        println(string("\t", "\t", gr.granges[i].seqname, "\t\t", "[",gr.granges[i].range.start, " ", gr.granges[i].range.finish,"]", "\t\t", gr.granges[i].strand, "\t | \t", gr.granges[i].score, "\t", gr.granges[i].GC))
     end
     println("\t---")
     print("\tseqlengths:")
     print("\n\t")
-    for i = 1:length(gr.seqnames)
-        print(string(gr.seqnames[i], "\t"))
-    end
+    #for i = 1:length(gr.seqnames)
+        #print(string(gr.seqnames[i], "\t"))
+    #end
     print("\n\t")
-    for i = 1:length(gr.seqnames)
+    for i = 1:length(gr.granges)
         # TO DO: this should be the total length of the sequence?
         print(string("NA", "\t"))
     end

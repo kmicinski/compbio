@@ -8,6 +8,7 @@
 #   Matthew Mauriello
 #
 
+using Option
 export IRange, IRanges, indexNames!, start, finish, width # TODO: make sure everything we need is exported.
 
 # IRange data structure. Represents an integer interval with an optional name.
@@ -28,42 +29,43 @@ type IRange
 end
 
 # Define equality for IRange as equal when both endpoints are equal.
-function isequal( r1::IRange, r2::IRange)
-	(r1.start == r2.start) && (r1.finish == r2.finish)
-end
+#function isequal( r1::IRange, r2::IRange)
+#	(r1.start == r2.start) && (r1.finish == r2.finish)
+#end
 
 # A stupid comparison that just checks if r2.start is less than r2.start.
-function isless( r1::IRange, r2::IRange)
-	r1.start < r2.start
-end
+#function isless( r1::IRange, r2::IRange)
+#	r1.start < r2.start
+#end
 
 # IRanges data structure.
 type IRanges
-	iranges::Vector{IRange} # Should this be changed to a btree???
+        iranges::Vector{IRange} # Should this be changed to a btree???
 	nameDict::option(Dict{String,Int}) # Maps names to an IRange index. Names must be unique and present in the iranges vector.
 
-	IRanges( iranges::Vector{IRange}, index::Bool) = begin
-		self = new( iranges, None)
+        IRanges( iranges::Vector{IRange}, index::Bool) = begin
+                self = new(iranges, Nothing)
 
-		if index
-			indexNames!( self)
-		end
+                if index
+                       indexNames!(self)
+                end
 
 		self
-	end
+        end
 end
 
 # Many operations like merge, disjoin, etc obliterate this index so only create index when finished manipulating iranges.
 function indexNames!( iranges::IRanges)
-	if !isNone( iranges.nameDict)
-		error( "name index already exists")
-	end
+
+        #if !isNone( iranges.nameDict)
+        #	error( "name index already exists")
+        #end
 
 	dict = Dict{String,Int}()
 	ranges = iranges.iranges
 	sizehint( dict, length( ranges))
 
-	for i = 1:lenth( ranges)
+        for i = 1:length( ranges)
 		range = ranges[i]
 		name = range.name
 		if !isNone( name)
