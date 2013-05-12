@@ -8,7 +8,7 @@
 #   Matthew Mauriello
 #
 
-export GRange, GRanges, show, seqnames, ranges, strand, mcols
+export GRange, GRanges, show, seqnames, ranges, strand, mcols, names, len
 
 
 # GRanges type; poorly approximated
@@ -179,10 +179,18 @@ function seqlengths(gr::GRanges)
 end
 
 function names(gr::GRanges)
+
+    print("\t[1] ")
+    for i = 1:length(gr.granges)
+         print(string(gr.granges[i].range.name, " "))
+    end
+    print("\n")
+
 end
 
 # length renamed to len as to not conflict with Julia default length function? Perhaps, just use the Length()
 function len(gr::GRanges)
+    return length(gr.granges)
 end
 
 function splitGRanges(gr::GRanges, each::Int)
