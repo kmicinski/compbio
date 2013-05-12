@@ -8,7 +8,7 @@
 #   Matthew Mauriello
 #
 
-export GRange, GRanges, show
+export GRange, GRanges, show, seqnames
 
 
 # GRanges type; poorly approximated
@@ -51,9 +51,9 @@ function show(gr::GRanges)
     println("\t---")
     print("\tseqlengths:")
     print("\n\t")
-    #for i = 1:length(gr.seqnames)
-        #print(string(gr.seqnames[i], "\t"))
-    #end
+    for i = 1:length(gr.granges)
+        print(string(gr.granges[i].seqname, "\t"))
+    end
     print("\n\t")
     for i = 1:length(gr.granges)
         # TO DO: this should be the total length of the sequence?
@@ -65,25 +65,59 @@ end
 # seqnames appears to be just another view of the data
 # TO DO: figure out what runs are. Sounds silly, I know.
 function seqnames(gr::GRanges)
-    println(string("\t", typeof(gr.seqnames), " of length ", length(gr.seqnames), " with X runs"))
+
+    runs = 0
+    cur = ""
+    seq = Array(String, length(gr.granges))
+    for i = 1:length(gr.granges)
+        if seq == ""
+            cur = gr.granges[i].seqname
+            runs = runs + 1
+        elseif cur != gr.granges[i].seqname
+            cur = gr.granges[i].seqname
+            runs = runs + 1
+        end
+        seq[i] = gr.granges[i].seqname
+    end
+    uniqueElems = sort(unique(seq))
+
+
+    println(string("\t", typeof(gr.granges), " of length ", length(gr.granges), " with ", runs," runs"))
 
     print("\tLengths:\t")
-    for i = 1:length(gr.seqnames)
-        print(string(gr.ranges[i].width,"\t"))
+    count = 0
+    seq = ""
+    for i = 1:length(gr.granges)
+        if seq == ""
+            seq = gr.granges[i].seqname
+            count = 1
+        elseif seq != gr.granges[i].seqname
+            print(string(count,"\t"))
+            count = 1
+            seq = gr.granges[i].seqname
+        else
+            count = count + 1
+        end
     end
-    print("\n")
+    println(count)
+
 
     print("\tValues:\t\t")
-    for i = 1:length(gr.seqnames)
-        print(string(gr.seqnames[i],"\t"))
+    seq = ""
+    for i = 1:length(gr.granges)
+        if seq == ""
+            seq = gr.granges[i].seqname
+        elseif seq != gr.granges[i].seqname
+            print(string(seq,"\t"))
+            seq = gr.granges[i].seqname
+        end
     end
-    print("\n")
-    # TO DO: THIS PART IS MOSTLY NON-FUNCTIONAL
-    # Count of unique sequences?
-    print("\tLevels(X):\t")
-    for i = 1:length(gr.seqnames)
+    println(seq)
+
+    print(string("\tLevels(", length(uniqueElems) ,"):\t"))
+    for i = 1:length(uniqueElems)
         # List of unique sequences?
-        print(string("X","\t"))
+        print(string(uniqueElems[i],"\t"))
     end
     print("\n")
 end
