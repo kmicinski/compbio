@@ -8,7 +8,7 @@
 #   Matthew Mauriello
 #
 
-export GRange, GRanges, show, seqnames, ranges, strand, mcols, names, len
+export GRange, GRanges, GRangesList, show, seqnames, ranges, strand, mcols, names, len, splitGRanges
 
 
 # GRanges type; poorly approximated
@@ -32,10 +32,19 @@ type GRanges
     granges::Vector{GRange}
 
     #Constructor
-    GRanges( granges::Vector{GRange}) = begin
+    GRanges(granges::Vector{GRange}) = begin
         new(granges)
     end
 
+end
+
+type GRangesList
+    grangeslist::Vector{GRanges}
+
+    #Constructor
+    GRangesList(grangeslist::Vector{GRanges}) = begin
+        new(grangeslist)
+    end
 end
 
 # Show the structure and data contained within the GRanges object; decently approximated
@@ -193,7 +202,32 @@ function len(gr::GRanges)
     return length(gr.granges)
 end
 
-function splitGRanges(gr::GRanges, each::Int)
+function splitGRanges(gr::GRanges, each::Int32)
+    if len(gr) <= each || each <= 0
+        print("Split would have no effect")
+        return
+    end
+
+    #Calcalte the number of GRanges needed
+    count::Int32
+    count = floor((len(gr)/each))
+    if (len(gr)%each) != 0
+        count = count + ((len(gr)%each)/(len(gr)%each))
+    end
+
+    #Load Data
+    repo = Array(GRanges, count)
+    for i = 1:count
+        index = (each * (i - 1))+1
+        if  (len(gr) - index) >= each
+            boundary = (index+(each-1))
+        else
+            boundary = len(gr)
+        end
+        repo[i] = GRanges([gr.granges[index:boundary]])
+    end
+    return GRangesList(repo)
+
 end
 
 function c(gr::GRanges, br::GRanges)
