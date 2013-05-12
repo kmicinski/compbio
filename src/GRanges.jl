@@ -8,7 +8,7 @@
 #   Matthew Mauriello
 #
 
-export GRange, GRanges, show, seqnames, ranges, strand
+export GRange, GRanges, show, seqnames, ranges, strand, mcols
 
 
 # GRanges type; poorly approximated
@@ -162,6 +162,16 @@ end
 # Right now I have poorly inserted what is termed metadata at the top; when writing this function we'll have to define some kind of structure and matrix
 # for holding metadata. (Impact: GRanges, show, and probably most other functions if this isn't handled soon
 function mcols(gr::GRanges)
+    print("\tDataFrame with X rows and Y columns")
+    print("\n\t\tscore\t\t")
+    println("GC")
+    println("\t\t<integer>\t<numeric>")
+
+    for i = 1:length(gr.granges)
+        println(string("\t", i, "\t\t", gr.granges[i].score, "\t", gr.granges[i].GC))
+    end
+
+
 end
 
 
