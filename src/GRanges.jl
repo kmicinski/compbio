@@ -8,7 +8,7 @@
 #   Matthew Mauriello
 #
 
-export GRange, GRanges, show, seqnames, ranges
+export GRange, GRanges, show, seqnames, ranges, strand
 
 
 # GRanges type; poorly approximated
@@ -44,7 +44,7 @@ end
 function show(gr::GRanges)
     println(string("\tGRanges with ", length(gr.granges)," ranges and ", 2, " metadata columns:"))
     println("\t\tseqnames \tranges \t\tstrand \t | \tscore \tGC")
-    println("\t\t<ASCIIString> \t<IRanges> \t<Char> \t | \t<Int> \t<Float64>")
+    println("\t\t<String> \t<IRange> \t<Char> \t | \t<Int> \t<Float64>")
     for i = 1:length(gr.granges)
         println(string("\t", "\t", gr.granges[i].seqname, "\t\t", "[",gr.granges[i].range.start, " ", gr.granges[i].range.finish,"]", "\t\t", gr.granges[i].strand, "\t | \t", gr.granges[i].score, "\t", gr.granges[i].GC))
     end
@@ -65,22 +65,7 @@ end
 # seqnames appears to be just another view of the data
 # TO DO: figure out what runs are. Sounds silly, I know.
 function seqnames(gr::GRanges)
-
-    runs = 0
-    cur = ""
-    seq = Array(String, length(gr.granges))
-    for i = 1:length(gr.granges)
-        if seq == ""
-            cur = gr.granges[i].seqname
-            runs = runs + 1
-        elseif cur != gr.granges[i].seqname
-            cur = gr.granges[i].seqname
-            runs = runs + 1
-        end
-        seq[i] = gr.granges[i].seqname
-    end
-    uniqueElems = sort(unique(seq))
-
+    (uniqueElems, runs) = call_unique_seq(gr)
 
     println(string("\t", typeof(gr.granges), " of length ", length(gr.granges), " with ", runs," runs"))
 
@@ -132,6 +117,46 @@ function ranges(gr::GRanges)
 end
 
 function strand(gr::GRanges)
+    (uniqueElems, runs) = call_unique_strand(gr)
+    print("\tfactor-Rle of length: ")
+    println(string(length(gr.granges), " with ", runs , " runs"))
+
+    print("\tLengths:\t")
+    count = 0
+    seq = ""
+    for i = 1:length(gr.granges)
+        if seq == ""
+            seq = gr.granges[i].strand
+            count = 1
+        elseif seq != gr.granges[i].strand
+            print(string(count,"\t"))
+            count = 1
+            seq = gr.granges[i].strand
+        else
+            count = count + 1
+        end
+    end
+    println(count)
+
+    print("\tValues:\t\t")
+    seq = ""
+    for i = 1:length(gr.granges)
+        if seq == ""
+            seq = gr.granges[i].strand
+        elseif seq != gr.granges[i].strand
+            print(string(seq,"\t"))
+            seq = gr.granges[i].strand
+        end
+    end
+    println(seq)
+
+    print(string("\tLevels(", length(uniqueElems) ,"):\t"))
+    for i = 1:length(uniqueElems)
+        # List of unique sequences
+        print(string(uniqueElems[i],"\t"))
+    end
+    print("\n")
+
 end
 
 # Right now I have poorly inserted what is termed metadata at the top; when writing this function we'll have to define some kind of structure and matrix
@@ -226,3 +251,40 @@ end
 # Example usage:
 #gr = GRanges(["a", "b", "c"],["chr1", "chr2", "chr3"], [IRanges(1,7,7-1,0), IRanges(0,0,0,0), IRanges(0,0,0,0)] , ['+','-','*'] , [1,2,3],  [0.0,0.0,0.0])
 
+#INTERNAL FUNCTIONS
+
+function call_unique_seq(gr::GRanges)
+    runs = 0
+    cur = ""
+    seq = Array(String, length(gr.granges))
+    for i = 1:length(gr.granges)
+        if seq == ""
+            cur = gr.granges[i].seqname
+            runs = runs + 1
+        elseif cur != gr.granges[i].seqname
+            cur = gr.granges[i].seqname
+            runs = runs + 1
+        end
+        seq[i] = gr.granges[i].seqname
+    end
+    uniqueElems = sort(unique(seq))
+    return uniqueElems, runs
+end
+
+function call_unique_strand(gr::GRanges)
+    runs = 0
+    cur = ""
+    seq = Array(Char, length(gr.granges))
+    for i = 1:length(gr.granges)
+        if seq == ""
+            cur = gr.granges[i].strand
+            runs = runs + 1
+        elseif cur != gr.granges[i].strand
+            cur = gr.granges[i].strand
+            runs = runs + 1
+        end
+        seq[i] = gr.granges[i].strand
+    end
+    uniqueElems = sort(unique(seq))
+    return uniqueElems, runs
+end
