@@ -8,7 +8,7 @@
 #   Matthew Mauriello
 #
 
-export GRange, GRanges, show, seqnames
+export GRange, GRanges, show, seqnames, ranges
 
 
 # GRanges type; poorly approximated
@@ -124,10 +124,10 @@ end
 
 function ranges(gr::GRanges)
     print("\tIRanges of length: ");
-    println(length(gr.seqnames));
+    println(length(gr.granges));
     println("\t\tstart\tend\twidth\tnames");
-    for i = 1:length(gr.seqnames)
-        println(string("\t[", i, "]\t",gr.ranges[i].start, "\t", gr.ranges[i].finish, "\t", ((gr.ranges[i].finish - gr.ranges[i].start) + 1), "\t", gr.names[i]));
+    for i = 1:length(gr.granges)
+        println(string("\t[", i, "]\t",gr.granges[i].range.start, "\t", gr.granges[i].range.finish, "\t", gr.granges[i].range.width, "\t", gr.granges[i].range.name));
     end
 end
 
