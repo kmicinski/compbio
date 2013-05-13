@@ -11,8 +11,10 @@
 using Option
 export IRange, IRanges, start, finish, width # TODO: make sure everything we need is exported.
 
+abstract Interval
+
 # IRange data structure. Represents an integer interval with an optional name.
-immutable IRange <: Interval
+type IRange <: Interval # TODO: change to immutable once everyone has 2.0
 	start::Int
 	finish::Int
 	width::Int
@@ -50,7 +52,7 @@ end
 #end
 
 # IRanges data structure.
-immutable IRanges
+type IRanges # TODO: change to immutable once everyone has 2.0
 	iranges::Vector{IRange} # Should this be changed to a btree???
 	nameDict::option(Dict{String,Int}) # Maps names to an IRange index. Names must be unique and present in the iranges vector.
 
