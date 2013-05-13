@@ -28,13 +28,29 @@ type IRange <: Interval # TODO: change to immutable once everyone has 2.0
 end
 
 # Define equality for IRange as equal when the ranges don't overlap at all.
+function isless( r1::IRange, r2::IRange)
+	r1.finish < r2.start
+end
+
 function isequal( r1::IRange, r2::IRange)
 	!(r1 < r2 || r2 < r1)
 end
 
-# A comparison that just checks if r2.finish is less than r2.start.
-function isless( r1::IRange, r2::IRange)
-	r1.finish < r2.start
+# Define comparisons relative to a point.
+function isless( x::Float64, r::IRange)
+	x < r.start
+end
+
+function isless( r::IRange, x::Float64)
+	r.finish < x
+end
+
+function isequal( x::Float64, r::IRange)
+	!(x < r || r < x)
+end
+
+function isequal( r::IRange, x::Float64)
+	isequal( x, r)
 end
 
 # An alternative definition for comparisons.
