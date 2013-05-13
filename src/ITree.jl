@@ -3,7 +3,7 @@
 
 module ITree
 
-export Interval, IntervalTree, intervalTree #, EmptyNode, IntervalNode
+export Interval, IntervalTree, intervalTree, findOverlaps, countOverlaps #, EmptyNode, IntervalNode
 
 abstract Interval
 abstract IntervalTree{T <: Interval}
@@ -32,7 +32,7 @@ type IntervalNode{T} <: IntervalTree{T}
 			if i < center
 				push!( leftIntervals, i)
 			else if i > center
-				push!( rightINtervals, i)
+				push!( rightIntervals, i)
 			else
 				push!( overlapIntervals, i)
 			end
@@ -94,6 +94,19 @@ function middle{T <: Interval}( intervals::Vector{T})
 	end
 
 	(minn + maxx) / 2.0
+end
+
+# Find and return a vector of all intervals in tree that overlap query.
+function findOverlaps{T <: Interval}( tree::IntervalTree{T}, query::T)
+	left = findLeftEndpoint()
+	right = findRightEndpoint()
+
+end
+
+# Count the intervals in tree that overlap query.
+# TODO: Wastes memory but works for now...
+function countOverlaps{T <: Interval}( tree::IntervalTree{T}, query::T)
+	length( findOverlaps( tree, query))
 end
 
 end
