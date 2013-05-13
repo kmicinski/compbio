@@ -3,7 +3,7 @@
 
 module ITree
 
-export IntervalTree, EmptyNode, IntervalNode, intervalTree
+export Interval, IntervalTree, EmptyNode, IntervalNode, intervalTree
 
 abstract Interval
 abstract IntervalTree{T <: Interval}
