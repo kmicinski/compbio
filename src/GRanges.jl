@@ -8,7 +8,7 @@
 #   Matthew Mauriello
 #
 
-export GRange, GRanges, GRangesList, show, seqnames, ranges, strand, mcols, names, len, splitGRanges
+export GRange, GRanges, GRangesList, show, seqnames, ranges, strand, mcols, names, len, splitGRanges, mergeGRanges
 
 
 # GRanges type; poorly approximated
@@ -230,7 +230,10 @@ function splitGRanges(gr::GRanges, each::Int32)
 
 end
 
-function c(gr::GRanges, br::GRanges)
+function mergeGRanges(gr::GRanges, br::GRanges)
+    array = reshape([gr.granges br.granges], (size(gr.granges)[1] + size(br.granges)[1]),)
+    return GRanges(array)
+
 end
 
 #TO DO: Define Subsetting method
