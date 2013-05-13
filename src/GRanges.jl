@@ -8,7 +8,7 @@
 #   Matthew Mauriello
 #
 
-export GRange, GRanges, GRangesList, show, seqnames, ranges, strand, mcols, names, len, splitGRanges, mergeGRanges, head, rep, rev, tail
+export GRange, GRanges, GRangesList, show, seqnames, ranges, strand, mcols, names, len, splitGRanges, mergeGRanges, head, rep, rev, tail, window, seqselect
 
 
 # GRanges type; poorly approximated
@@ -280,15 +280,60 @@ function tail(gr::GRanges, n::Int)
 end
 
 function window(gr::GRanges, start::Int, finish::Int)
+    if (start > finish || start <= 0 || finish >= len(gr) || start >= len(gr) || finish <= 0)
+        print("Invalid Range")
+    end
+
+    sample = gr.granges[start:finish]
+    show(GRanges(sample))
+end
+
+function seqselect(gr::GRanges, start::Array{Int32}, finish::Array{Int32})
+   if (size(start)[1] == 1 && size(start)[2] == 2 && size(finish)[1] == 1 && size(finish)[2] == 2)
+    if (start[1, 1] < start[1,2] && finish[1,1] < finish[1,2] && start[1,2] <= len(gr) && start[1,1] > 0 && finish[1,2] <= len(gr) && finish[1,2] > 0)
+            count = 0
+
+            for i = 1:len(gr)
+                if ((gr.granges[i].range.start >= start[1,1] && gr.granges[i].range.start <= start[1,2]) || (gr.granges[i].range.start >= finish[1,1] && gr.granges[i].range.start <= finish[1,2]))
+                    count = count + 1
+                end
+            end
+
+            if (count > 0)
+                sample = Array(GRange, count)
+                count = 1
+                for i = 1:len(gr)
+                    if ((gr.granges[i].range.start >= start[1,1] && gr.granges[i].range.start <= start[1,2]) || (gr.granges[i].range.start >= finish[1,1] && gr.granges[i].range.start <= finish[1,2]))
+                        sample[count] = gr.granges[i]
+                        count = count + 1
+                    end
+                end
+                found = GRanges(sample)
+                show(found)
+                return found
+            else
+                print("No Ranges Found")
+            end
+
+        else
+            println("Ranges in start or finish are out of bounds.")
+        end
+    else
+        println("Start/Finish should be 1x2 tuples representing range of display.")
+    end
+
+    return
 end
 
 function start(gr::GRanges)
+
 end
 
 function finish(gr::GRanges)
 end
 
 function width(gr::GRanges)
+
 end
 
 function range(gr::GRanges)
