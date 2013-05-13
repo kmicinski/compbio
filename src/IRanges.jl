@@ -9,10 +9,10 @@
 #
 
 using Option
-export IRange, IRanges, indexNames!, start, finish, width # TODO: make sure everything we need is exported.
+export IRange, IRanges, start, finish, width # TODO: make sure everything we need is exported.
 
 # IRange data structure. Represents an integer interval with an optional name.
-type IRange
+immutable IRange
 	start::Int
 	finish::Int
 	width::Int
@@ -50,30 +50,28 @@ end
 #end
 
 # IRanges data structure.
-type IRanges
+immutable IRanges
 	iranges::Vector{IRange} # Should this be changed to a btree???
 	nameDict::option(Dict{String,Int}) # Maps names to an IRange index. Names must be unique and present in the iranges vector.
 
 	IRanges( iranges::Vector{IRange}, index::Bool) = begin
-		self = new(iranges, nothing)
-
 		if index
-		       indexNames!(self)
+			dict = indexNames( iranges)
+			new( iranges, dict)
+		else
+			new( iranges, nothing)
 		end
-
-		self
 	end
 end
 
-# Many operations like merge, disjoin, etc obliterate this index so only create index when finished manipulating iranges.
-function indexNames!( iranges::IRanges)
+# Create a dictionary to map names to ranges.
+function indexNames!( ranges::Vector{IRange})
 
 	#if !isNone( iranges.nameDict)
 	#	error( "name index already exists")
 	#end
 
 	dict = Dict{String,Int}()
-	ranges = iranges.iranges
 	sizehint( dict, length( ranges))
 
 	for i = 1:length( ranges)
