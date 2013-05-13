@@ -8,7 +8,7 @@
 #   Matthew Mauriello
 #
 
-export GRange, GRanges, GRangesList, show, seqnames, ranges, strand, mcols, names, len, splitGRanges, mergeGRanges, head, rep, rev, tail, window, seqselect
+export GRange, GRanges, GRangesList, show, seqnames, ranges, strand, mcols, names, len, splitGRanges, mergeGRanges, head, rep, rev, tail, window, seqselect, start, finish, width, range
 
 
 # GRanges type; poorly approximated
@@ -229,7 +229,14 @@ function splitGRanges(gr::GRanges, each::Int32)
 end
 
 function mergeGRanges(gr::GRanges, br::GRanges)
-    array = reshape([gr.granges br.granges], (size(gr.granges)[1] + size(br.granges)[1]),)
+    array = Array(GRange, (len(gr) + len(br)))
+    for i = 1:(len(gr) + len(br))
+        if (i > len(gr))
+            array[i] = br.granges[(i-len(gr))]
+        else
+            array[i] = gr.granges[i]
+        end
+    end
     return GRanges(array)
 
 end
@@ -326,17 +333,48 @@ function seqselect(gr::GRanges, start::Array{Int32}, finish::Array{Int32})
 end
 
 function start(gr::GRanges)
-
+    starts = Array(Int, len(gr))
+    for i = 1:len(gr)
+        starts[i] = gr.granges[i].range.start
+    end
+    return starts
 end
 
 function finish(gr::GRanges)
+    finishes = Array(Int, len(gr))
+    for i = 1:len(gr)
+        finishes[i] = gr.granges[i].range.finish
+    end
+    return finishes
 end
 
 function width(gr::GRanges)
-
+    widths = Array(Int, len(gr))
+    for i = 1:len(gr)
+        widths[i] = gr.granges[i].range.width
+    end
+    return widths
 end
 
 function range(gr::GRanges)
+    println(string("\tGRanges with ", length(gr.granges)," ranges and ", 0, " metadata columns:"))
+    println("\t\tseqnames \tranges \t\tstrand")
+    println("\t\t<String> \t<IRange> \t<Char>")
+    for i = 1:length(gr.granges)
+        println(string("\t", "\t", gr.granges[i].seqname, "\t\t", "[",gr.granges[i].range.start, " ", gr.granges[i].range.finish,"]", "\t\t", gr.granges[i].strand))
+    end
+    println("\t---")
+    print("\tseqlengths:")
+    print("\n\t")
+    for i = 1:length(gr.granges)
+        print(string(gr.granges[i].seqname, "\t"))
+    end
+    print("\n\t")
+    for i = 1:length(gr.granges)
+        # TO DO: this should be the total length of the sequence?
+        print(string("NA", "\t"))
+    end
+    print("\n")
 end
 
 function flank(gr::GRanges, n::Int, start::Bool)
