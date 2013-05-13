@@ -11,8 +11,6 @@
 using Option
 export IRange, IRanges, start, finish, width # TODO: make sure everything we need is exported.
 
-abstract Interval
-
 # IRange data structure. Represents an integer interval with an optional name.
 type IRange <: Interval # TODO: change to immutable once everyone has 2.0
 	start::Int

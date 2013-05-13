@@ -5,6 +5,7 @@ module ITree
 
 export IntervalTree, EmptyNode, IntervalNode, intervalTree
 
+abstract Interval
 abstract IntervalTree{T <: Interval}
 
 type EmptyNode{T} <: IntervalTree{T} # TODO: can i make this singleton?
