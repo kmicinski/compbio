@@ -8,7 +8,7 @@
 #   Matthew Mauriello
 #
 
-export GRange, GRanges, GRangesList, show, seqnames, ranges, strand, mcols, names, len, splitGRanges, mergeGRanges
+export GRange, GRanges, GRangesList, show, seqnames, ranges, strand, mcols, names, len, splitGRanges, mergeGRanges, head, rep, rev, tail
 
 
 # GRanges type; poorly approximated
@@ -27,7 +27,6 @@ type GRange
     end
 
 end
-
 type GRanges
     granges::Vector{GRange}
 
@@ -37,7 +36,6 @@ type GRanges
     end
 
 end
-
 type GRangesList
     grangeslist::Vector{GRanges}
 
@@ -241,15 +239,44 @@ end
 #TO DO: Define seqselect method
 
 function head(gr::GRanges, n::Int)
+    if (n > len(gr))
+        n = len(gr)
+    end
+
+    sample = gr.granges[1:n]
+    show(GRanges(sample))
 end
 
 function rep(gr::GRanges, times::Int)
+    if len(gr) <= 0 || times <= 0
+        print("Input contains zero")
+        return
+    end
+
+    sample = Array(GRange, len(gr)*times)
+
+    for i = 1:times
+        for j = 1:len(gr)
+            sample[(j + ((i-1) * len(gr)))] = gr.granges[j]
+        end
+    end
+
+    range = GRanges(sample)
+    return range
 end
 
 function rev(gr::GRanges)
+    sample = GRanges(reverse(gr.granges))
+    return sample
 end
 
 function tail(gr::GRanges, n::Int)
+    if (n > len(gr))
+        n = len(gr)
+    end
+
+    sample = gr.granges[(len(gr)-n+1):len(gr)]
+    show(GRanges(sample))
 end
 
 function window(gr::GRanges, start::Int, finish::Int)
@@ -307,7 +334,6 @@ end
 #gr = GRanges(["a", "b", "c"],["chr1", "chr2", "chr3"], [IRanges(1,7,7-1,0), IRanges(0,0,0,0), IRanges(0,0,0,0)] , ['+','-','*'] , [1,2,3],  [0.0,0.0,0.0])
 
 #INTERNAL FUNCTIONS
-
 function call_unique_seq(gr::GRanges)
     runs = 0
     cur = ""
@@ -325,7 +351,6 @@ function call_unique_seq(gr::GRanges)
     uniqueElems = sort(unique(seq))
     return uniqueElems, runs
 end
-
 function call_unique_strand(gr::GRanges)
     runs = 0
     cur = ""
