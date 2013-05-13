@@ -38,8 +38,23 @@ type IntervalNode{T} <: IntervalTree{T}
 			end
 		end
 
-		forwardIntervals = # ... sortby
+		forwardIntervals = sortby( overlapIntervals, i->i.start)
+		sortby!( overlapIntervals, i->i.finish)
+		backwardIntervals = overlapIntervals
 
+		leftNode = if length( leftIntervals) == 0
+			EmptyNode()
+		else
+			IntervalNode( leftIntervals)
+		end
+
+		rightNode = if length( rightIntervals) == 0
+			EmptyNode()
+		else
+			IntervalNode( rightIntervals)
+		end
+
+		new( center, forwardIntervals, backwardIntervals, leftNode, rightNode)
 	end
 end
 
