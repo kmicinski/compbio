@@ -20,6 +20,10 @@ type IntervalNode{T} <: IntervalTree{T}
 
 	# TODO: Can this be made tail recursive?
 	function IntervalNode( intervals::Vector{T})
+		# Check if the interval is empty.
+		if length( intervals) == 0
+			EmptyNode()
+		end
 		center = middle( intervals)
 
 		# TODO: can I prealloc a length? Or use a list or something..
@@ -31,7 +35,7 @@ type IntervalNode{T} <: IntervalTree{T}
 		for i in intervals
 			if i < center
 				push!( leftIntervals, i)
-			else if i > center
+			elseif i > center
 				push!( rightIntervals, i)
 			else
 				push!( overlapIntervals, i)
@@ -42,28 +46,16 @@ type IntervalNode{T} <: IntervalTree{T}
 		sortby!( overlapIntervals, i->i.finish)
 		backwardIntervals = overlapIntervals
 
-		leftNode = if length( leftIntervals) == 0
-			EmptyNode()
-		else
-			IntervalNode( leftIntervals)
-		end
-
-		rightNode = if length( rightIntervals) == 0
-			EmptyNode()
-		else
-			IntervalNode( rightIntervals)
-		end
+		leftNode = IntervalNode( leftIntervals)
+		rightNode = IntervalNode( rightIntervals)
 
 		new( center, forwardIntervals, backwardIntervals, leftNode, rightNode)
 	end
 end
 
+# Public constructor.
 function intervalTree{T <: Interval}( intervals::Vector{T})
-	if length( intervals) == 0
-		EmptyNode()
-	else
-		IntervalNode( intervals)
-	end
+	IntervalNode( intervals)
 end
 
 #function insert!{T <: Interval}( tree::IntervalTree{T}, interval::T)
@@ -82,7 +74,7 @@ end
 #	# TODO ...
 #end
 
-# Finds the middle of the intervals.
+# Finds the middle of the intervals. Assumes that intervals is not empty.
 # Somewhat naive. Could improve to split more evenly.
 function middle{T <: Interval}( intervals::Vector{T})
 	minn = Inf
@@ -96,11 +88,63 @@ function middle{T <: Interval}( intervals::Vector{T})
 	(minn + maxx) / 2.0
 end
 
-# Find and return a vector of all intervals in tree that overlap query.
-function findOverlaps{T <: Interval}( tree::IntervalTree{T}, query::T)
-	left = findLeftEndpoint()
-	right = findRightEndpoint()
+# Checks if the tree is the empty node.
+function isEmpty{T <: Interval}( tree::IntervalTree{T})
+	isa( tree, EmptyNode{T})
+end
 
+# Find and return a vector of all intervals in tree that overlap query.
+# I didn't exactly follow the textbook on this one but I think it should work...
+# TODO: TEST!!!
+function findOverlaps{T <: Interval}( root::IntervalTree{T}, query::T)
+	overlaps = Array( T, 0)
+	queue = [root] # TODO: Change this to Queue?
+
+	while length( queue) > 0
+		# Pop the next tree node.
+		tree = pop!( queue)
+
+		# Check if the node is empty.
+		if isEmpty( Tree) # Maybe dispatch would be cleaner here...
+			break
+		end
+
+		# Check if center overlaps with query.
+		if query == tree.center
+			append!( overlaps, tree.forwardIntervals)
+
+			push!( queue, tree.left)
+			push!( queue, tree.right)
+		# Check if query is left of center.
+		elseif query < tree.center
+			for i in 1:length(tree.forwardIntervals)
+				interval = tree.forwardIntervals[i]
+				if interval.start <= query.finish
+					append!( overlaps, interval)
+				else
+					break
+				end
+			end
+
+			push!( queue, tree.left)
+		# Check if query is right of center.
+		elseif tree.center < query
+			for i in reverse(1:length(tree.backwardIntervals))
+				interval = tree.backwardIntervals[i]
+				if interval.finish >= query.start
+					append!( overlaps, interval)
+				else
+					break
+				end
+			end
+
+			push!( queue, tree.right)
+		else
+			error( "Interval Tree implementation error. This should never get called.")
+		end
+	end
+
+	overlaps
 end
 
 # Count the intervals in tree that overlap query.
