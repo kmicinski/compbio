@@ -8,7 +8,7 @@
 #   Matthew Mauriello
 #
 
-export GRange, GRanges, GRangesList, show, seqnames, ranges, strand, mcols, names, len, splitGRanges, mergeGRanges, head, rep, rev, tail, window, seqselect, start, finish, width, range, flank, shift, resize
+export GRange, GRanges, GRangesList, show, seqnames, ranges, strand, mcols, names, len, splitGRanges, mergeGRanges, head, rep, rev, tail, window, seqselect, start, finish, width, range, flank, shift, resize,
 
 
 # GRanges type; poorly approximated
