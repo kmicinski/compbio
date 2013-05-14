@@ -8,10 +8,10 @@ export Interval, IntervalTree, intervalTree, findOverlaps, countOverlaps #, Empt
 abstract Interval
 abstract IntervalTree{T <: Interval}
 
-type EmptyNode{T} <: IntervalTree{T} # TODO: can i make this singleton?
+type EmptyNode{T <: Interval} <: IntervalTree{T} # TODO: can i make this singleton?
 end
 
-type IntervalNode{T} <: IntervalTree{T}
+type IntervalNode{T <: Interval} <: IntervalTree{T}
 	center::Float64
 	forwardIntervals::Vector{T}
 	backwardIntervals::Vector{T}
@@ -19,7 +19,7 @@ type IntervalNode{T} <: IntervalTree{T}
 	right::IntervalTree{T}
 
 	# TODO: Can this be made tail recursive?
-	function IntervalNode( intervals::Vector{T})
+	function IntervalNode{T}( intervals::Vector{T})
 		# Check if the interval is empty.
 		if length( intervals) == 0
 			EmptyNode()
