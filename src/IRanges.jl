@@ -27,6 +27,15 @@ type IRange <: Interval # TODO: change to immutable once everyone has 2.0
 	end
 end
 
+# Getters for IRange.
+function start( r::IRange)
+	r.start
+end
+
+function finish( r::IRange)
+	r.finish
+end
+
 # Define equality for IRange as equal when the ranges don't overlap at all.
 function isless( r1::IRange, r2::IRange)
 	r1.finish < r2.start
