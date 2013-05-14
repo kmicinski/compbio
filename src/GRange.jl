@@ -9,7 +9,7 @@
 #
 #   See GRanges.jl for notes.
 
-export GRange, start, finish, width, range
+export GRange, start, finish, width, name
 
 type GRange
     seqname::String
