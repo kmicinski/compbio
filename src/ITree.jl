@@ -6,6 +6,14 @@ module ITree
 export Interval, IntervalTree, intervalTree, findOverlaps, countOverlaps #, EmptyNode, IntervalNode
 
 abstract Interval
+function start( i::Interval)
+	error( "`$(typeof(handler))` does not implement `start`")
+end
+
+function finish( i::Interval)
+	error( "`$(typeof(handler))` does not implement `finish`")
+end
+
 abstract IntervalTree{T <: Interval}
 
 type EmptyNode{T <: Interval} <: IntervalTree{T} # TODO: can i make this singleton?
@@ -42,8 +50,8 @@ type IntervalNode{T <: Interval} <: IntervalTree{T}
 			end
 		end
 
-		forwardIntervals = sortby( overlapIntervals, i->i.start)
-		sortby!( overlapIntervals, i->i.finish)
+		forwardIntervals = sortby( overlapIntervals, i->start(i))
+		sortby!( overlapIntervals, i->finish(i))
 		backwardIntervals = overlapIntervals
 
 		leftNode = IntervalNode( leftIntervals)
@@ -81,8 +89,8 @@ function middle{T <: Interval}( intervals::Vector{T})
 	maxx = -Inf
 
 	for i in intervals
-		minn = min( minn, i.start)
-		maxx = max( maxx, i.finish)
+		minn = min( minn, start(i))
+		maxx = max( maxx, finish(i))
 	end
 
 	(minn + maxx) / 2.0
@@ -119,7 +127,7 @@ function findOverlaps{T <: Interval}( root::IntervalTree{T}, query::T)
 		elseif query < tree.center
 			for i in 1:length(tree.forwardIntervals)
 				interval = tree.forwardIntervals[i]
-				if interval.start <= query.finish
+				if start(interval) <= finish(query)
 					append!( overlaps, interval)
 				else
 					break
@@ -131,7 +139,7 @@ function findOverlaps{T <: Interval}( root::IntervalTree{T}, query::T)
 		elseif tree.center < query
 			for i in reverse(1:length(tree.backwardIntervals))
 				interval = tree.backwardIntervals[i]
-				if interval.finish >= query.start
+				if finish(interval) >= start(query)
 					append!( overlaps, interval)
 				else
 					break
