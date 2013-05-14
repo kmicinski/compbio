@@ -7,26 +7,21 @@
 #   Kristopher Micinski
 #   Matthew Mauriello
 #
+#   Example Construction:
+#   gr = GRanges(["a", "b", "c"],["chr1", "chr2", "chr3"], [IRanges(1,7,7-1,0), IRanges(0,0,0,0), IRanges(0,0,0,0)] , ['+','-','*'] , [1,2,3],  [0.0,0.0,0.0])
+#
+#   Limitations:
+#   Parallel Operations in R are not supported by this package. See "TO DO"s.
+#
+#   TO DO: Investigate Gapped Alignments.
 
-export GRange, GRanges, GRangesList, show, seqnames, ranges, strand, mcols, names, len, splitGRanges, mergeGRanges, head, rep, rev, tail, window, seqselect, start, finish, width, range, flank, shift, resize
+export GRanges, show, seqnames, ranges, strand, mcols, names, len, mergeGRanges, head, rep, rev, tail, window, seqselect, start, finish, width, range, flank, shift, resize
 
 
 # GRanges type; poorly approximated
 # TO DO: Write simple constructor? Seperate into metadata and GRange data using matrix structure.
 # TO DO: Change 'type' to  'Immutable'?
-type GRange
-    seqname::String
-    range::IRange
-    strand::Char
-    score::Int #This is suppose to be metadata
-    GC::Float64 #This is suppoe to be meatadata
 
-    # Constructor
-    GRange(seqname, range, strand, score, GC) = begin
-        new (seqname, range, strand, score, GC)
-    end
-
-end
 type GRanges
     granges::Vector{GRange}
 
@@ -35,14 +30,6 @@ type GRanges
         new(granges)
     end
 
-end
-type GRangesList
-    grangeslist::Vector{GRanges}
-
-    #Constructor
-    GRangesList(grangeslist::Vector{GRanges}) = begin
-        new(grangeslist)
-    end
 end
 
 # Show the structure and data contained within the GRanges object; decently approximated
@@ -118,9 +105,12 @@ function ranges(gr::GRanges)
     print("\tIRanges of length: ");
     println(length(gr.granges));
     println("\t\tstart\tend\twidth\tnames");
+    sample = Array(IRange, len(gr))
     for i = 1:length(gr.granges)
         println(string("\t[", i, "]\t",gr.granges[i].range.start, "\t", gr.granges[i].range.finish, "\t", gr.granges[i].range.width, "\t", gr.granges[i].range.name));
+        sample[i] = gr.granges[i].range
     end
+    return sample
 end
 
 function strand(gr::GRanges)
@@ -198,34 +188,6 @@ end
 # length renamed to len as to not conflict with Julia default length function? Perhaps, just use the Length()
 function len(gr::GRanges)
     return length(gr.granges)
-end
-
-function splitGRanges(gr::GRanges, each::Int32)
-    if len(gr) <= each || each <= 0
-        print("Split would have no effect")
-        return
-    end
-
-    #Calcalte the number of GRanges needed
-    count::Int32
-    count = floor((len(gr)/each))
-    if (len(gr)%each) != 0
-        count = count + ((len(gr)%each)/(len(gr)%each))
-    end
-
-    #Load Data
-    repo = Array(GRanges, count)
-    for i = 1:count
-        index = (each * (i - 1))+1
-        if  (len(gr) - index) >= each
-            boundary = (index+(each-1))
-        else
-            boundary = len(gr)
-        end
-        repo[i] = GRanges([gr.granges[index:boundary]])
-    end
-    return GRangesList(repo)
-
 end
 
 function mergeGRanges(gr::GRanges, br::GRanges)
@@ -378,15 +340,15 @@ function range(gr::GRanges)
 end
 
 function flank(gr::GRanges, n::Int, start::Bool)
-    print("Function Undefined")
+    print("Function Incomplete")
 end
 
 function shift(gr::GRanges, n::Int)
-    print("Function Undefined")
+    print("Function Incomplete")
 end
 
 function resize(gr::GRanges, n::Int)
-    print("Function Undefined")
+    print("Function Incomplete")
 end
 
 function reduce(gr::GRanges)
@@ -409,15 +371,6 @@ end
 
 function setdiff(gr::GRanges, br::GRanges)
 end
-
-# TO DO: Investigate "p" methods.
-
-# TO DO: Investigate GRangesList.
-
-# TO DO: Investigate Gapped Alignments.
-
-# Example usage:
-#gr = GRanges(["a", "b", "c"],["chr1", "chr2", "chr3"], [IRanges(1,7,7-1,0), IRanges(0,0,0,0), IRanges(0,0,0,0)] , ['+','-','*'] , [1,2,3],  [0.0,0.0,0.0])
 
 #INTERNAL FUNCTIONS
 function call_unique_seq(gr::GRanges)
