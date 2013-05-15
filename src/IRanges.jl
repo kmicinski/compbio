@@ -8,7 +8,7 @@
 #   Matthew Mauriello
 #
 
-export IRange, IRanges, start, finish, width # TODO: make sure everything we need is exported.
+export IRange, IRanges, start, finish, width, isless # TODO: make sure everything we need is exported.
 
 using Option
 using IntervalDef
@@ -38,6 +38,8 @@ end
 function finish(r::IRange)
 	r.finish
 end
+
+import Base.isless
 
 # Define equality for IRange as equal when the ranges don't overlap at all.
 function isless( r1::IRange, r2::IRange)
