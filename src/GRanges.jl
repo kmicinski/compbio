@@ -37,7 +37,8 @@ export GRanges,
        range,
        flank,
        shift,
-       resize
+       resize,
+       union
 
 # GRanges type; poorly approximated TO DO: Write simple constructor?
 # Seperate into metadata and GRange data using matrix structure.  TO
@@ -238,7 +239,9 @@ function head(gr::GRanges, n::Int)
     end
 
     sample = gr.granges[1:n]
-    show(GRanges(sample))
+    ret = GRanges(sample)
+    show(ret)
+    return ret
 end
 
 function rep(gr::GRanges, times::Int)
@@ -394,26 +397,47 @@ function resize(gr::GRanges, n::Int)
 end
 
 function reduce(gr::GRanges)
+    print("Function Incomplete")
 end
 
 function gaps(gr::GRanges)
+    print("Function Incomplete")
 end
 
 function disjoin(gr::GRanges)
+    print("Function Incomplete")
 end
 
 function converage(gr::GRanges)
+    print("Function Incomplete")
 end
 
 # Create a union of two GRanges objects.
 function union(gr::GRanges, br::GRanges)
+
+    for i = 1:len(br)
+        add = true
+        for j = 1:len(gr)
+            if (isequal(gr.granges[j].range, br.granges[i].range))
+                add = false
+                break
+            end
+        end
+        if (add)
+            gr = mergeGRanges(gr, GRanges([br.granges[i]]))
+        end
+    end
+
+    return gr
 end
 
 
 function intersect(gr::GRanges, br::GRanges)
+
 end
 
 function setdiff(gr::GRanges, br::GRanges)
+    print("Function Incomplete")
 end
 
 # Internal functions -- not exported.
