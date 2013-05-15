@@ -93,7 +93,6 @@ function middle{T <: Interval}( intervals::Vector{T})
 	maxx = -Inf
 
 	for i in intervals
-		println( typeof(i))
 		minn = min( minn, start(i))
 		maxx = max( maxx, finish(i))
 	end
