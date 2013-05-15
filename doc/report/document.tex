@@ -3,13 +3,16 @@
 \pubyear{2005}
 
 \usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{xspace}
 
 \newcommand{\todo}[1]{\textcolor{orange}{\textbf{TODO}: #1}} %~\\ 
 \newcommand{\unsure}[1]{\textcolor{Mulberry}{\textbf{?} #1 \textbf{?}}}
 \newcommand{\brainstorm}[1]{\textcolor{ProcessBlue}{\textbf{Brainstorming}: #1}}
 \newcommand{\jp}[1]{\textcolor{red}{#1}}
 \newcommand{\mm}[1]{\textcolor{green}{#1}}
-\newcommand{\kkm}[1]{\textcolor{pink}{#1}}
+\newcommand{\code}[1]{\texttt{#1}\xspace}
+\newcommand{\rlanguage}{R\xspace}
+\newcommand{\kris}[1]{\textcolor{pink}{#1}}
 \def\bs{\brainstorm}
 \newcommand{\wordchoice}[1]{\textcolor{red}{\textbf{#1}}}
 \def\wc{\wordchoice}
@@ -57,13 +60,14 @@ Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Tex
 \section{Introduction}
 
 % Intro outline - problem, solution, our work/implementation
-R is currently the preferred tool of the bioinformatics community. R
-is very good for rapid programming, however it is also very conducive
-to programmer error. The language is weakly typed and coercions are
-implicit, which is often a source of programming error \cite{?}. For
-instance, consider the following code that attempts to convert a data
-frame that is read from a file into a matrix.
-% \footnote{*To whom correspondence should be addressed.}
+
+R is currently the preferred tool of the bioinformatics
+community. While R works well for rapid programming, it is also
+conducive to programmer error. The language is weakly typed and
+coercions are implicit, which often leads to runtime errors or (worse)
+code that tacitly breaks. For instance, consider the following code
+that attempts to convert a data frame that is read from a file into a
+matrix.
 
 \begin{verbatim} 
 raw <- read.csv(``genotypes.csv'')
@@ -71,26 +75,43 @@ genotypes <- data.matrix(raw)
 \end{verbatim}
 
 At first glance, this appears innocuous, however consider the case
-when \emph{raw} contains \emph{NAs}. The \emph{NAs} are coerced to
-\emph{1s} in the matrix. If the researcher is unaware of this
-behavior, this coercion can lead to incorrect analyses and results.
+when \emph{raw} contains null data (which \rlanguage represents as
+\code{NA}). The \code{NA}s are implicitly coerced to \code{1} in the
+matrix. If the researcher is unaware of this behavior, this coercion
+can lead to incorrect analyses and results.  This is a very troubling
+situation, as good scientific practice emphasizes testing and
+validating \emph{all} methods for correctness.  As software is used
+more and more frequently within scientific research: we need a way to
+ensure the correctness of software, without adding an undue amount of
+burden on the programmer.
 
-Another issue with R is that it has poor performance. As an
- interpreted language, all of its code must be evaluated within an
- interpreter. Running in an interpreter is much slower than native
- code evaluated directly by a machinefs hardware. One reason for this
- is that an interpreter must read a line of code, parse it, and
- evaluate it. On the other hand, native code is compiled and sent as
- binary instructions to the processor. R is unable to generate native
- code due to its weak type system. Think about what the interpreter
- must do when it sees the expression \emph{A * B} to multiply the
- objects \emph{A} and \emph{B}. It does not know what the types of
- these objects are so it must figure this out at runtime. Therefore,
- it cannot know ahead of time whether the operation \emph{*}
- corresponds to integer multiplication, matrix multiplication, or many
- different variants of multiplication.  \todo{Wrap up sentence that
-   interpretation, R is bad?}  \todo{Kris should revise/elaborate
-   here}
+Another issue with R is that it has poor performance. Because of
+\rlanguage's highly dynamic semantics, code is executed within an
+interpreter (rather than compiled, ala Fortran). Running in an
+interpreter is much slower than native code executed directly by a
+machine's hardware. One reason for this is that an interpreter must
+read a line of code, decode it, and evaluate it. On the other hand,
+native code is compiled and executed in real time by the
+processor. 
+
+Compiling \rlanguage is sometimes possible \cite{R}, but made harder
+because of its dynamic type system.  The reason for this lies in the
+ability of the compiler to compile an expression based on its type
+(which in many languages dictates memory layout).  Consider what must
+happen when the interpreter parses the expression \code{A * B}.  The
+operator $\ast$ is overloaded so that it can work on a multitude of
+combinations of objects (integers and vectors, matrices, etc...).  The
+interpreter must first deduce the \emph{type} of the object (difficult
+to do without control flow analysis \cite{cfa}), and then choose the
+appropriate implementation of $\ast$ to use.  Instead, if the compiler
+knows the \emph{type} of the objects, it can simply create a control
+flow sequence which simply multiplies the operands, or calls a matrix
+operation:
+
+\begin{verbatim}
+imul %l0 %l1
+ccall multiply_matrices %p0 %p1
+\end{verbatim}
 
 % Additionally, this typing information cannot be given to the
 % compiler that would generally improve performance. Instead, the
@@ -100,26 +121,31 @@ Another issue with R is that it has poor performance. As an
 % alternative solutions, such as: Matlabfs Bioinformatics Toolbox,
 % BioPython, and BioLib for FORTRAN.
 
-To address the shortcomings of R, we investigate the new programming
-language Julia and implement select functionality from Rfs
-Bioconductor package.  There are many other solutions that perform
-biological computations. These include Matlabfs Bioinformatics
-Toolbox, BioPython, and BioLib for FORTRAN \cite{?,?,?}.
-
-The Julia programming language actively supports users with writing
-better code by providing a rich typing system. Types allow us to
+To address the shortcomings of \rlanguage, we investigate the new
+programming language Julia and implement select functionality from
+\rlanguagefs \texttt{BioConductor} package.  Julia is a language aimed
+at scientific computing and a minimal syntax, designed to be
+approachable by scientists.  It actively supports users with writing
+better code by providing a rich type system, native parallel
+computation, simple unit testing primitives, a module system, and
+other features lacking within \rlanguage. Types allow us to
 syntactically specify which programs are well formed. Additionally,
 performance problems commonly found in R are addressed by the Just In
-Time (JIT) compiler. This is apparent in Table
-\ref{table:languagecomparison} from \cite{?}, which compares the
-performance of Julia to many different languages. To highlight the
-differences in speed between R and Julia, the table shows that Julia
-is 517.34 times faster than R at performing quicksort.
+Time (JIT) compiler built on top of the LLVM compiler toolkit %%\cite{}.
+The JIT compiler allows the compiler to use machine specific
+opportunities to highly optimize the codebase.  Because the system
+uses LLVM as the underlying compiler, compilation is as efficient as
+LLVM (which has a very active user community and supports efficient
+compilation to many architectures).
+
+This is apparent in Table \ref{table:languagecomparison} from
+\cite{?}, which compares the performance of Julia to many different
+languages. To highlight the differences in speed between R and Julia,
+the table shows that Julia is 517.34 times faster than R at performing
+quicksort.
 
 A strong type system also allows the programmer to make some
-guarantees about the parameters of program. \todo{elaborate here a
-  bit..}  \todo{Juliafs type system creates convenience for the
-  developer as well. c talk about method dispatch?}
+guarantees about the parameters of program.  \kris{more stuff here..}
 
 \begin{table}
 
@@ -150,6 +176,8 @@ for working with genomic range data. \unsure{ This rest of this paper
   implementation. Section 5 explores the benchmarking: procedure,
   data, results, and makes some basic conclusions. Section 6 explains
   immediate needs before public release. }
+
+\section{System and Methods}
 
 This project seeks to replicate a portion of BioConductor package that
 is currently available in R for the Julia language. Several key
@@ -189,25 +217,118 @@ over R that are offered by Julia. These demonstrated benefits will
 provide support for the continued deve lopment of the bioinformatics
 package gBioSeqh.
 
+\section{Algorithms}
+
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{images/intervaltree.pdf}
-\caption{An interval tree where the intervals in each node are shown as sorted by the start endpoint. The dashed vertical line indicates the center point of the node.}
+\caption{An interval tree where the intervals in each node are shown
+  as sorted by the start endpoint. The dashed vertical line indicates
+  the center point of the node.}
 \label{fig:intervaltree}
 \end{figure}
 
-There are no novel algorithms in our implementation, however we do use specific data structures and algorithms to make certain operations efficient. The main example of this is the use of an interval tree. An interval tree can be constructed out of an array of genomic ranges. Then this data structure can be used to efficiently perform queries to find which intervals overlap.
+There are no novel algorithms in our implementation, however we do use
+specific data structures and algorithms to make certain operations
+efficient. The main example of this is the use of an interval tree. An
+interval tree can be constructed out of an array of genomic
+ranges. Then this data structure can be used to efficiently perform
+queries to find which intervals overlap.
 
-Interval trees are binary trees that contain intervals \cite{deBerg:1997:CGA:261226}. Each node of the tree contains a center point, an array of intervals that overlap the center point sorted by the start endpoint, and another array of the same intervals sorted by the finish endpoint. The node also stores a pointer to a left node which is a parent of all intervals that are left of the center point. The same is true for a right node and intervals to the right of the center point. A diagram illustrating interval trees can be seen in Figure \ref{fig:intervaltree} where the shown intervals are sorted by the start endpoint. 
+Interval trees are binary trees that contain intervals
+\cite{deBerg:1997:CGA:261226}. Each node of the tree contains a center
+point, an array of intervals that overlap the center point sorted by
+the start endpoint, and another array of the same intervals sorted by
+the finish endpoint. The node also stores a pointer to a left node
+which is a parent of all intervals that are left of the center
+point. The same is true for a right node and intervals to the right of
+the center point. A diagram illustrating interval trees can be seen in
+Figure \ref{fig:intervaltree} where the shown intervals are sorted by
+the start endpoint.
 
-Intervals trees can be constructed by taking the mean of the given intervals as the center point. Then intervals that overlap the center point are stored in the current node. Intervals to the left or right of the center point are then recursively split off to construct the left and right nodes until no intervals remain. This how process of construction takes $O(n log(n))$ time.
+Intervals trees can be constructed by taking the mean of the given intervals as the center point. Then intervals that overlap the center point are stored in the current node. Intervals to the left or right of the center point are then recursively split off to construct the left and right nodes until no intervals remain. This how process of construction takes $O(n \log n)$ time.
 
-Interval trees are used to find the intervals that overlap a query interval. This is accomplished by checking if the query interval overlaps with a nodefs center point. If this is true then all the intervals in that node are found to overlap. If the query interval is left of the center point, the nodefs forward sorted array of interval is checked if they overlap with the query. Once one of the intervals is found to not overlap the query, the algorithm stops checking more intervals because the intervals are sorted. The same approach is applied to the case when the query interval is right of the center point. After a node is finished, it recursively runs the query against its left or right child nodes as necessary. Performing queries on interval trees takes $O(log(n))$ time as long as the tree is sufficiently balanced.
+Interval trees are used to find the intervals that overlap a query
+interval. This is accomplished by checking if the query interval
+overlaps with a nodefs center point. If this is true then all the
+intervals in that node are found to overlap. If the query interval is
+left of the center point, the nodefs forward sorted array of interval
+is checked if they overlap with the query. Once one of the intervals
+is found to not overlap the query, the algorithm stops checking more
+intervals because the intervals are sorted. The same approach is
+applied to the case when the query interval is right of the center
+point. After a node is finished, it recursively runs the query against
+its left or right child nodes as necessary. Performing queries on
+interval trees takes $O(\log n)$ time as long as the tree is
+sufficiently balanced.
+
+\section{Implementation}
+
+We implement our codebase to mirror the implementation of the relevant
+aspects of the \texttt{BioConductor} package.  When appropriate, our
+types (classes in R) share the same names and functions, and our
+implementation uses similar data strctures.
+
+\subsection{\code{IRanges}}
+
+\subsection{\code{GRanges}}
+
+\subsection{Parsing BAM Files}
+
+The SAM and BAM file formats represent alignments from RNA-seq data in
+a standard way. \cite{samformat} A BAM file lists a large set
+(hundreds of megabytes or more) of alignments given as a set of read
+data and metadata (read position, forward or backward, a string
+indicating status for each position, etc...).  We have implemented
+machinery which allows reading of BAM files within Julia.  
+
+Our implementation relies on the SAMtools library \cite{}: written in
+C.  Julia allows interfacing with C using a simple FFI (foreign
+function interface) \cite{}.  Procedures from C can be called, and the
+data can be manipulated (although not all values in C can be
+represented, many map onto Julia types, which are represented via
+LLVM).  The \code{ccall} function allows calling C functions by
+specifying their argument types and arguments (as Julia values).  The
+code is then properly wrapped according to the platform's ABI and the
+results are transferred back to Julia.
+
+Representing values from C within Julia is possible when the values in
+C map to a Julia type.  Julia includes various types for holding C
+values, including the native C types such as \code{Uint8}, but also
+pointer types such as \code{Ptr\{Void\}}.  The Julia FFI is still
+evolving but looks to become a simple way to integrate scientific
+libraries (written in C) to be called from Julia code.  Throughout the
+development of the BAM parsing library, an author found a bug in Julia
+which caused a pointer (returned from a C function) to be mishandled
+by Julia's garbage collector: the bug was reported and will be fixed.
+
+The SAMtools library allows reading extremely large alignment files
+and holding the results in memory.  Because the alignment data could
+be quite large, it is generally a bad idea to hold all alignments in
+memory at any one time.  Instead, the file supports callback based
+querying: a user queries alignments from the place in the genome in
+which they are interested, and the library returns the reads.  The
+reads are returned using a callback function, which is called every
+time new overlapping reads (from within the region) are found.  
+
+Our implementation harnesses the power of SAMtools, but also uses a
+helper C library to create a simple wrapper which can be called from
+Julia.  The reason for this library is that not all C types in
+SAMtools can be easily represented in Julia: the library provides
+stubs which perform operations and map them back to simple Julia
+types.
+
+Julia FFI also places the requirement that the library be dynamically
+loaded (rather than statically linked).  This requires that the
+SAMtools library be compiled in a position independent way: to do so
+we modified the \code{Makefile} of the SAMtools library to compile a
+position independent dynamic library (along with our helper stubs) to
+call the code from Julia.
 
 \section{Discussion}
 
 \jp{these sections/subsections seem a bit weird to me} \mm{Feel free
   to change them... the format is loosely based on the guide; hector
-  suggested doing our best with it, but modify as necessary}
+  suggested doing our best with it, but modify as necessary} 
 
 \subsection{Data}
 
@@ -303,6 +424,6 @@ The authors would like to thank Dr. Corrada Bravo, of University of Maryland, fo
 %
 %\bibliography{Document}
 
-
+% http://docs.julialang.org/en/latest/manual/calling-c-and-fortran-code.html
 %%
 \end{document}
