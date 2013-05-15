@@ -1,9 +1,13 @@
 # Parse BAM files in Julia.
 #
 # This file allows a user to parse a BAM alignment file and reify the
-# results into a Julia GRanges structure.
+# results into a Julia GRanges structure.  
+# 
 
 module BamParse
+
+import Base.*
+import IRanges
 
 export BamFile,
        open_bam,
@@ -11,10 +15,19 @@ export BamFile,
        open_close
 
 libbam_so = "libbam"
+simplebam_so = "simplebam"
 
 # Abstract type representing bam file
 type BamFile
     file::Ptr
+end
+
+# Type representing BAM parsing parameters.  This is mirrored in
+# Rsamtools 
+# 
+# To parse a BAM file we need simply a list of ranges to parse.
+type BamParseParams
+    regions :: Vector{IRanges}
 end
 
 function open_bam(filename :: String) 
@@ -28,6 +41,11 @@ end
 
 function close_bam(file :: BamFile)
     ccall((:samclose,"libbam"), Void, (Ptr{Void},), file.file)
+end
+
+# Parse a BAM file, given a set of scan parameters.
+function parse_bam(file :: BamFile, params :: BamScanParams)
+
 end
 
 function open_close(fn :: String)

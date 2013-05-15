@@ -266,7 +266,12 @@ sufficiently balanced.
 We implement our codebase to mirror the implementation of the relevant
 aspects of the \texttt{BioConductor} package.  When appropriate, our
 types (classes in R) share the same names and functions, and our
-implementation uses similar data strctures.
+implementation uses similar data strctures.  Our impelmentation
+consists of a toplevel \code{BioRanges.jl} module which exports all of
+our code.  We use the Julia module system \cite{} to structure our
+code.  We implement code to hold genomic ranges and count overlaps
+between genome sequences, along with parsing alignment data into a
+\texttt{GRanges} object.
 
 \subsection{\code{IRanges}}
 
