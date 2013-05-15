@@ -9,14 +9,6 @@ include("IRanges.jl")
 
 export IntervalTree, intervalTree, findOverlaps, countOverlaps #, EmptyNode, IntervalNode
 
-#function start( i::Interval) # Not sure if these methods actually do anything..
-#	error( "`$(typeof(i))` does not implement `start`")
-#end
-#function finish( i::Interval) # Not sure if these methods actually do anything..
-#	error( "`$(typeof(i))` does not implement `finish`")
-#end
-# comparisons...?
-
 abstract IntervalTree
 
 type EmptyNode <: IntervalTree # TODO: can i make this singleton?
@@ -33,7 +25,7 @@ type IntervalNode <: IntervalTree
 	function IntervalNode{T <: Interval}( intervals::Vector{T})
 		# Check if the interval is empty.
 		if length( intervals) == 0
-			EmptyNode() # TODO: HERE
+			return EmptyNode() # TODO: HERE
 		end
 		center = middle( intervals)
 
