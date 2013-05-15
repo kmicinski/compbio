@@ -6,8 +6,9 @@ require("../src/BioRanges.jl") # Do you have to do this?
 
 using Base.Test
 using BioRanges
+using ITree
 
-import ITree.middle
+#import ITree.*
 
 # Set seed.
 srand(63)
@@ -21,4 +22,12 @@ for i in 1:n
 	intervals[i] = IRange( starts[i], finishes[i], nothing)
 end
 
-@test middle(intervals) == (min( starts) + max(finishes)) / 2.0
+# Test middle.
+#middle(intervals) == (min( starts) + max(finishes)) / 2.0
+#@test middle(intervals) == (min( starts) + max(finishes)) / 2.0
+
+# Test countOverlaps.
+tree = intervalTree( intervals)
+@test countOverlaps( tree, IRange( 0, 1000, nothing)) == n
+
+# TODO: test boundaries, empty query, empty tree, etc...

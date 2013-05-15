@@ -27,10 +27,10 @@ type IntervalNode <: IntervalTree
 	right::IntervalTree
 
 	# TODO: Can this be made tail recursive?
-	function IntervalNode( intervals::Vector{Interval})
+	function IntervalNode{T <: Interval}( intervals::Vector{T})
 		# Check if the interval is empty.
 		if length( intervals) == 0
-			EmptyNode()
+			EmptyNode() # TODO: HERE
 		end
 		center = middle( intervals)
 
@@ -62,8 +62,8 @@ type IntervalNode <: IntervalTree
 end
 
 # Public constructor.
-function intervalTree( intervals::Vector{Interval})
-	IntervalNode( intervals)
+function intervalTree{T <: Interval}( intervals::Vector{T})
+	IntervalNode( intervals) # TODO: HERE
 end
 
 #function insert!{T <: Interval}( tree::IntervalTree{T}, interval::T)
@@ -90,6 +90,7 @@ function middle{T <: Interval}( intervals::Vector{T})
 	maxx = -Inf
 
 	for i in intervals
+		println( typeof(i))
 		minn = min( minn, start(i))
 		maxx = max( maxx, finish(i))
 	end
@@ -99,13 +100,13 @@ end
 
 # Checks if the tree is the empty node.
 function isEmpty( tree::IntervalTree)
-	isa( tree, EmptyNode{T})
+	isa( tree, EmptyNode{T}) # TODO: HERE
 end
 
 # Find and return a vector of all intervals in tree that overlap query.
 # I didn't exactly follow the textbook on this one but I think it should work...
 # TODO: TEST!!!
-function findOverlaps( root::IntervalTree, query::Interval)
+function findOverlaps{T <: Interval}( root::IntervalTree, query::T)
 	overlaps = Array( T, 0)
 	queue = [root] # TODO: Change this to Queue?
 
@@ -158,7 +159,7 @@ end
 
 # Count the intervals in tree that overlap query.
 # TODO: Wastes memory but works for now...
-function countOverlaps( tree::IntervalTree, query::Interval)
+function countOverlaps{T <: Interval}( tree::IntervalTree, query::T)
 	length( findOverlaps( tree, query))
 end
 
