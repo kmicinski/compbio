@@ -2,14 +2,24 @@
 \copyrightyear{2005}
 \pubyear{2005}
 
+\usepackage[usenames,dvipsnames]{xcolor}
+
+\newcommand{\todo}[1]{\textcolor{orange}{\textbf{TODO}: #1}} %~\\ 
+\newcommand{\unsure}[1]{\textcolor{Mulberry}{\textbf{?} #1 \textbf{?}}}
+\newcommand{\brainstorm}[1]{\textcolor{ProcessBlue}{\textbf{Brainstorming}: #1}}
+\newcommand{\jp}[1]{\textcolor{red}{#1}}
+\newcommand{\mm}[1]{\textcolor{green}{#1}}
+\newcommand{\kkm}[1]{\textcolor{pink}{#1}}
+\def\bs{\brainstorm}
+\newcommand{\wordchoice}[1]{\textcolor{red}{\textbf{#1}}}
+\def\wc{\wordchoice}
+
 \begin{document}
 \firstpage{1}
 
-\title[short Title]{This is a title}
-\author[Sample \textit{et~al}]{Corresponding Author\,$^{1,*}$, Co-Author\,$^{2}$ and Co-Author\,$^2$\footnote{to whom correspondence should be addressed}}
-\address{$^{1}$Department of XXXXXXX, Address XXXX etc.\\
-$^{2}$Department of XXXXXXXX, Address XXXX etc.}
-
+\title[BioSeq in Julia]{Extending BioSeq in Julia: Contributions to an open source project}
+\author[Micinski \textit{et~al}]{Kristopher Micinski\,$^{1,*}$, James Parker\,$^{2}$ and  Matthew Louis Mauriello\,$^2$\footnote{to whom correspondence should be addressed}}
+\address{$^{1}$Department of Computer Science, University of Maryland, College Park}
 \history{Received on XXXXX; revised on XXXXX; accepted on XXXXX}
 
 \editor{Associate Editor: XXXXXXX}
@@ -17,6 +27,19 @@ $^{2}$Department of XXXXXXXX, Address XXXX etc.}
 \maketitle
 
 \begin{abstract}
+
+Typically, R is the programming language of choice to perform
+biological computations. While the dynamic nature of the language
+allows rapid programming, R suffers from poor performance and is
+conducive to programming errors. One solution to this problem is the
+newly developed programming language, Julia. Julia boasts many
+attractive features such as a JIT compiler and a strong type system,
+which address many of the shortcomings of R. Specifically, the
+language produces programs with more guarantees about correctness and
+runs at speeds approaching that of C. In an effort to improve
+computational biology and research, we implement \unsure{parsing of
+  BAM files, representation of genomic ranges, and efficient overlap
+  detection} in Julia to take advantage of this new language.
 
 \section{Motivation:}
 Text Text Text  Text Text Text Text Text Text Text Text
@@ -33,154 +56,242 @@ Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Tex
 
 \section{Introduction}
 
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure~\ref{fig:01} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citep{Bag01} wants to know about …… text follows.
+% Intro outline - problem, solution, our work/implementation
+R is currently the preferred tool of the bioinformatics community. R
+is very good for rapid programming, however it is also very conducive
+to programmer error. The language is weakly typed and coercions are
+implicit, which is often a source of programming error \cite{?}. For
+instance, consider the following code that attempts to convert a data
+frame that is read from a file into a matrix.
+% \footnote{*To whom correspondence should be addressed.}
 
-\begin{equation}
-\sum x+ y =Z\label{eq:01}
-\end{equation}
+\begin{verbatim} 
+raw <- read.csv(``genotypes.csv'')
+genotypes <- data.matrix(raw)
+\end{verbatim}
 
+At first glance, this appears innocuous, however consider the case
+when \emph{raw} contains \emph{NAs}. The \emph{NAs} are coerced to
+\emph{1s} in the matrix. If the researcher is unaware of this
+behavior, this coercion can lead to incorrect analyses and results.
 
+Another issue with R is that it has poor performance. As an
+ interpreted language, all of its code must be evaluated within an
+ interpreter. Running in an interpreter is much slower than native
+ code evaluated directly by a machinefs hardware. One reason for this
+ is that an interpreter must read a line of code, parse it, and
+ evaluate it. On the other hand, native code is compiled and sent as
+ binary instructions to the processor. R is unable to generate native
+ code due to its weak type system. Think about what the interpreter
+ must do when it sees the expression \emph{A * B} to multiply the
+ objects \emph{A} and \emph{B}. It does not know what the types of
+ these objects are so it must figure this out at runtime. Therefore,
+ it cannot know ahead of time whether the operation \emph{*}
+ corresponds to integer multiplication, matrix multiplication, or many
+ different variants of multiplication.  \todo{Wrap up sentence that
+   interpretation, R is bad?}  \todo{Kris should revise/elaborate
+   here}
 
+% Additionally, this typing information cannot be given to the
+% compiler that would generally improve performance. Instead, the
+% userfs code is interpreted by R rather than being run directly on
+% the machine hardware.  This interpretation results even poorer
+% performance [work in table below]. This has resulted in numerous
+% alternative solutions, such as: Matlabfs Bioinformatics Toolbox,
+% BioPython, and BioLib for FORTRAN.
 
+To address the shortcomings of R, we investigate the new programming
+language Julia and implement select functionality from Rfs
+Bioconductor package.  There are many other solutions that perform
+biological computations. These include Matlabfs Bioinformatics
+Toolbox, BioPython, and BioLib for FORTRAN \cite{?,?,?}.
 
+The Julia programming language actively supports users with writing
+better code by providing a rich typing system. Types allow us to
+syntactically specify which programs are well formed. Additionally,
+performance problems commonly found in R are addressed by the Just In
+Time (JIT) compiler. This is apparent in Table
+\ref{table:languagecomparison} from \cite{?}, which compares the
+performance of Julia to many different languages. To highlight the
+differences in speed between R and Julia, the table shows that Julia
+is 517.34 times faster than R at performing quicksort.
 
-\section{Approach}
+A strong type system also allows the programmer to make some
+guarantees about the parameters of program. \todo{elaborate here a
+  bit..}  \todo{Juliafs type system creates convenience for the
+  developer as well. c talk about method dispatch?}
 
-Equation~(\ref{eq:01}) Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text ……
+\begin{table}
 
-
-\begin{methods}
-\section{Methods}
-
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-
-\begin{itemize}
-\item for bulleted list, use itemize
-\item for bulleted list, use itemize
-\item for bulleted list, use itemize
-\end{itemize}
-
-
-
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text.
-
-
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-
-
-
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-
-
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-
-
-
-\begin{table}[!t]
-\processtable{This is table caption\label{Tab:01}}
-{\begin{tabular}{llll}\toprule
-head1 & head2 & head3 & head4\\\midrule
-row1 & row1 & row1 & row1\\
-row2 & row2 & row2 & row2\\
-row3 & row3 & row3 & row3\\
-row4 & row4 & row4 & row4\\\botrule
-\end{tabular}}{This is a footnote}
+\label{table:languagecomparison}
+\caption{Benchmark times relative to C (smaller is better) \cite{?}.}
 \end{table}
 
-\end{methods}
+% When R is interpreting the userfs code, each line of code is read,
+% processed, and then resources are requested before the instruction
+% can actually be ran. Ultimately, this means that executing the code
+% will be much slower. Julia allows the userfs code to be directly
+% compiled, which allows the resulting program to be run natively. The
+% processor can directly read the program binary code that corresponds
+% to instructions and execute them in a much faster way.
 
-\begin{figure}[!tpb]%figure1
-%\centerline{\includegraphics{fig01.eps}}
-\caption{Caption, caption.}\label{fig:01}
+Julia has a library for manipulating biological data called BioSeq
+(Zea, 2013) , however this library does not provide the functionality
+we are looking for. Currently it handles DNA sequences at the single
+nucleotide level, but it does not contain data structures for looking
+at regions of genes. We expand BioSeq and add additional functionality
+for working with genomic range data. \unsure{ This rest of this paper
+  is laid out as follows. Section 2 discusses specifically the
+  functionality being added to BioSeq and discusses our hypothesis
+  surrounding performance measures we anticipate being provided by
+  Julia over R. Section 3 discuss the particular algorithms used in
+  the countOverlaps() operation as well as discusses the SAMtools
+  API. Section 4 briefly discusses the level of current
+  implementation. Section 5 explores the benchmarking: procedure,
+  data, results, and makes some basic conclusions. Section 6 explains
+  immediate needs before public release. }
+
+This project seeks to replicate a portion of BioConductor package that
+is currently available in R for the Julia language. Several key
+elements of this package have been selected, which includes: basic
+support for \unsure{genomic data classes (i.e. IRanges, GRanges,
+  etc.), support to perform union and intersection operations over
+  genes, the ability to import large BAM files containing genomic
+  data, and support for running overlap queries}. With respect to
+loading BAM files, we have taken advantage of a Foreign Function
+Interface (FFI) to take advantage of the SAMtools library.
+
+In order to demonstrate that Julia offers performance benefits over R,
+we will collect system times on the diverse set of tasks that have
+been replicated in Julia.  In particular, this study will look at the
+total elapse time of the countOverlaps() pipeline as well as the
+elapse time of each individual set of tasks. Based on the interpreted
+vs compiled nature of making code comparisons between Julia and R, we
+make the following hypothesis:
+
+H1. BAM files processing tasks and currently implement data structure
+operations will show no significant differences in performance
+times. The use of FFI to call SAMtools is common across both languages
+and data structure operations are implemented in a naive
+fashion. Therefore, it is anticipated that the Julia implementation
+will be faster than R; however, this difference will not be
+significant.
+
+H2. Performing the countOverlaps() operation on the GRanges interval
+object will demonstrate significant performance improvements in Julia
+that result in improvement in the total elapse time of the
+pipeline. The countOverlaps() operation has been implemented and
+optimized for running in Julia and is expected to demonstrate
+performance improvements over R implementation of the same operation.
+
+The purpose of this study is to demonstrate the performance benefits
+over R that are offered by Julia. These demonstrated benefits will
+provide support for the continued deve lopment of the bioinformatics
+package gBioSeqh.
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{images/intervaltree.pdf}
+\caption{An interval tree where the intervals in each node are shown as sorted by the start endpoint. The dashed vertical line indicates the center point of the node.}
+\label{fig:intervaltree}
 \end{figure}
 
-\begin{figure}[!tpb]%figure2
-%\centerline{\includegraphics{fig02.eps}}
-\caption{Caption, caption.}\label{fig:02}
-\end{figure}
+There are no novel algorithms in our implementation, however we do use specific data structures and algorithms to make certain operations efficient. The main example of this is the use of an interval tree. An interval tree can be constructed out of an array of genomic ranges. Then this data structure can be used to efficiently perform queries to find which intervals overlap.
+
+Interval trees are binary trees that contain intervals \cite{deBerg:1997:CGA:261226}. Each node of the tree contains a center point, an array of intervals that overlap the center point sorted by the start endpoint, and another array of the same intervals sorted by the finish endpoint. The node also stores a pointer to a left node which is a parent of all intervals that are left of the center point. The same is true for a right node and intervals to the right of the center point. A diagram illustrating interval trees can be seen in Figure \ref{fig:intervaltree} where the shown intervals are sorted by the start endpoint. 
+
+Intervals trees can be constructed by taking the mean of the given intervals as the center point. Then intervals that overlap the center point are stored in the current node. Intervals to the left or right of the center point are then recursively split off to construct the left and right nodes until no intervals remain. This how process of construction takes $O(n log(n))$ time.
+
+Interval trees are used to find the intervals that overlap a query interval. This is accomplished by checking if the query interval overlaps with a nodefs center point. If this is true then all the intervals in that node are found to overlap. If the query interval is left of the center point, the nodefs forward sorted array of interval is checked if they overlap with the query. Once one of the intervals is found to not overlap the query, the algorithm stops checking more intervals because the intervals are sorted. The same approach is applied to the case when the query interval is right of the center point. After a node is finished, it recursively runs the query against its left or right child nodes as necessary. Performing queries on interval trees takes $O(log(n))$ time as long as the tree is sufficiently balanced.
 
 \section{Discussion}
 
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text.
+\jp{these sections/subsections seem a bit weird to me} \mm{Feel free
+  to change them... the format is loosely based on the guide; hector
+  suggested doing our best with it, but modify as necessary}
 
+\subsection{Data}
 
+Our data was collected using the system timing routines provided by
+the standard libraries of Julia and R. Table X shows the average time
+it takes to read in a test data file and map it to memory, run several
+GRange functions, and complete multiple queries to countOverlaps()
+routine.
 
+5.2Results
 
-Table~\ref{Tab:01} shows that Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that
-the above method Text Text. Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that
-the above method Text Text. Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that
-the above method Text Text.
+With respect to H1 we found...
 
+With respect to H2 we found...
 
+\subsection{Limitations}
 
+This implementation developed for this study is very preliminary. The
+pipeline necessary for performing the countOverlaps() operation has
+been implemented, but rigorous testing is still required to verify the
+apparent deterministic behaviour beyond the limited testing that has
+been performed. Additionally, the data that was used to test has been
+both randomly generated or provided as sample data for a previous
+project. The purpose of using randomly generated data was to verify
+the correctness of the data using simple examples and then testing the
+performance on various sized data sets. Using past data was done to
+verify correctness of the FFI interface and SAMtools. Correctness and
+performance is yet to be verified on large greal datasets. Finally,
+considerable time was invested into all three components that were
+constructed for the countOverlaps() pipeline; however, most are not
+optimized in the same way that countOverlaps() was and therefore are
+sources of potential performance bottlenecks for future users.
 
+\subsection{Conclusions}
 
+R might not be the best tool for Bioinformatics. Extending the BioSeq
+package for Julia will allow researchers to utilize an environment
+that supports the reduction of programming errors through a typing
+hierarchy, which provides improved performance over R when combined
+with the JIT compiler provided by Julia. By implementing a portion of
+BioSeq, we hope to encourage more development of this package by the
+Bioinformatics community.
 
+\todo{We propose that the bioinformatics community take advantage of,
+  and begin developing packages for, the Julia Language
+  (http://julialang.org). Julia provides a strong typing architecture
+  that reduces some of the ambiguity in verifying the correctness of a
+  program. Additionally, this information can be provided to a
+  compiler to make some assurances about the code. The JIT compiler of
+  Julia provides performances benefits over R; however, packages for
+  this language are limited making R superior in terms of ease of use
+  in - especially for the bioinformatics community. Without support
+  from developers and researchers, this actively developing language
+  will continue to be overlooked by researchers despite its many
+  benefits.  }
 
+6Future Work
 
+This study has demonstrated the preliminary development of expansions
+to the current BioSeq (Zea, 2013) package being developed for
+Julia. This study showcases that Julia outperforms R in terms of
+performance during our selected benchmarking operation. This expansion
+includes the basic data structures, operations, and interfaces
+associated with genomic ranges and intervals in R and
+Bioconductor. However, further work on these objects needs to be
+performed. Specifically, the genomic ranges are not fully implemented
+as defined by the R specifications found in the genomic ranges
+vignette (Carlson et al., 2013) and should be. We aim to complete the
+functions that perform union and intersection operations across
+genomic ranges and perhaps a few others as necessary..
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-%     please remove the " % " symbol from \centerline{\includegraphics{fig01.eps}}
-%     as it may ignore the figures.
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-
-
-
-\section{Conclusion}
-
-(Table~\ref{Tab:01}) Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.
-
-
-
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-
-
-
-
-
-\begin{enumerate}
-\item this is item, use enumerate
-\item this is item, use enumerate
-\item this is item, use enumerate
-\end{enumerate}
-
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text.
-
-
-
-
-
-
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text
+We have also demonstrated that a simplified API wrapper for accessing
+SAMtools, and BAM files, through an FFI can be replicated. The API is
+very minimal, designed produce GRanges of the data specifically to
+assist in performing the countOverlaps() operation. This API should
+also be further developed before release \todo{expand on
+  this}. Finally, general documentation and clean up tasks still need
+to be performed before a large release of the project can be
+considered.
 
 
 \section*{Acknowledgement}
-Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
 
-\paragraph{Funding\textcolon} Text Text Text Text Text Text  Text Text.
+The authors would like to thank Dr. Corrada Bravo, of University of Maryland, for his guidance and direction during the course of this project. Additional thanks to the Julia  Language and BioSeq communities for providing responsive feedback and assistance with conflict resolution in this early developing environment.
 
 %\bibliographystyle{natbib}
 %\bibliographystyle{achemnat}
@@ -193,35 +304,5 @@ Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to kn
 %\bibliography{Document}
 
 
-\begin{thebibliography}{}
-\bibitem[Bofelli {\it et~al}., 2000]{Boffelli03} Bofelli,F., Name2, Name3 (2003) Article title, {\it Journal Name}, {\bf 199}, 133-154.
-
-\bibitem[Bag {\it et~al}., 2001]{Bag01} Bag,M., Name2, Name3 (2001) Article title, {\it Journal Name}, {\bf 99}, 33-54.
-
-\bibitem[Yoo \textit{et~al}., 2003]{Yoo03}
-Yoo,M.S. \textit{et~al}. (2003) Oxidative stress regulated genes
-in nigral dopaminergic neurnol cell: correlation with the known
-pathology in Parkinson's disease. \textit{Brain Res. Mol. Brain
-Res.}, \textbf{110}(Suppl. 1), 76--84.
-
-\bibitem[Lehmann, 1986]{Leh86}
-Lehmann,E.L. (1986) Chapter title. \textit{Book Title}. Vol.~1, 2nd edn. Springer-Verlag, New York.
-
-\bibitem[Crenshaw and Jones, 2003]{Cre03}
-Crenshaw, B.,III, and Jones, W.B.,Jr (2003) The future of clinical
-cancer management: one tumor, one chip. \textit{Bioinformatics},
-doi:10.1093/bioinformatics/btn000.
-
-\bibitem[Auhtor \textit{et~al}. (2000)]{Aut00}
-Auhtor,A.B. \textit{et~al}. (2000) Chapter title. In Smith, A.C.
-(ed.), \textit{Book Title}, 2nd edn. Publisher, Location, Vol. 1, pp.
-???--???.
-
-\bibitem[Bardet, 1920]{Bar20}
-Bardet, G. (1920) Sur un syndrome d'obesite infantile avec
-polydactylie et retinite pigmentaire (contribution a l'etude des
-formes cliniques de l'obesite hypophysaire). PhD Thesis, name of
-institution, Paris, France.
-
-\end{thebibliography}
+%%
 \end{document}
