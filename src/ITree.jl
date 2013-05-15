@@ -3,9 +3,12 @@
 
 module ITree
 
-export Interval, IntervalTree, intervalTree, findOverlaps, countOverlaps #, EmptyNode, IntervalNode
+using IntervalDef
 
-abstract Interval
+include("IRanges.jl")
+
+export IntervalTree, intervalTree, findOverlaps, countOverlaps #, EmptyNode, IntervalNode
+
 #function start( i::Interval) # Not sure if these methods actually do anything..
 #	error( "`$(typeof(i))` does not implement `start`")
 #end

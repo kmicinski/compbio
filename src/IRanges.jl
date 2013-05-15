@@ -10,6 +10,9 @@
 
 export IRange, IRanges, start, finish, width # TODO: make sure everything we need is exported.
 
+using Option
+using IntervalDef
+
 # IRange data structure. Represents an integer interval with an optional name.
 type IRange <: Interval # TODO: change to immutable once everyone has 2.0
 	start::Int
@@ -28,11 +31,11 @@ type IRange <: Interval # TODO: change to immutable once everyone has 2.0
 end
 
 # Getters for IRange.
-function start( r::IRange)
+function start(r :: IRange)
 	r.start
 end
 
-function finish( r::IRange)
+function finish(r::IRange)
 	r.finish
 end
 
