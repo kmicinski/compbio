@@ -8,7 +8,7 @@
 #   Matthew Mauriello
 #
 
-export IRange, IRanges, start, finish, width # TODO: make sure everything we need is exported.
+export IRange, IRanges, start, finish, width, isless, isequal # TODO: make sure everything we need is exported.
 
 using Option
 using IntervalDef
