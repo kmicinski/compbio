@@ -28,6 +28,9 @@ end
 
 # Test countOverlaps.
 tree = intervalTree( intervals)
-@test countOverlaps( tree, IRange( 0, 1000, nothing)) == n
+i = IRange( 0, 1000, nothing)
+println("here")
+findOverlaps( tree, i)#IRange( 0, 1000, nothing))
+#@test countOverlaps( tree, IRange( 0, 1000, nothing)) == n
 
 # TODO: test boundaries, empty query, empty tree, etc...
