@@ -101,6 +101,7 @@ end
 # I didn't exactly follow the textbook on this one but I think it should work...
 # TODO: TEST!!!
 function findOverlaps{T <: Interval}( root::IntervalTree, query::T)
+	println("here")
 	overlaps = Array( T, 0)
 	queue = [root] # TODO: Change this to Queue?
 
@@ -110,7 +111,7 @@ function findOverlaps{T <: Interval}( root::IntervalTree, query::T)
 
 		# Check if the node is empty.
 		if isEmpty( Tree) # Maybe dispatch would be cleaner here...
-			break
+			continue
 		end
 
 		# Check if center overlaps with query.
@@ -144,7 +145,7 @@ function findOverlaps{T <: Interval}( root::IntervalTree, query::T)
 
 			push!( queue, tree.right)
 		else
-			error( "Interval Tree implementation error. This should never get called.")
+			error( "Interval Tree implementation error. This should never get called. Check the Interval comparisons.")
 		end
 	end
 
