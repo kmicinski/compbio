@@ -1,3 +1,4 @@
+
 # GRanges Class for Julia BioSeq
 #   Modeled after original BioConductor documentation
 #   :http://www.bioconductor.org/packages/release/bioc/vignettes/GenomicRanges/inst/doc/GenomicRangesIntroduction.pdf
@@ -15,12 +16,33 @@
 #
 #   TO DO: Investigate Gapped Alignments.
 
-export GRanges, show, seqnames, ranges, strand, mcols, names, len, mergeGRanges, head, rep, rev, tail, window, seqselect, start, finish, width, range, flank, shift, resize
+export GRanges,
+       show,
+       seqnames,
+       ranges,
+       strand,
+       mcols,
+       names,
+       len,
+       mergeGRanges,
+       head,
+       rep,
+       rev,
+       tail,
+       window,
+       seqselect,
+       start,
+       finish,
+       width,
+       range,
+       flank,
+       shift,
+       resize,
+       union
 
-
-# GRanges type; poorly approximated
-# TO DO: Write simple constructor? Seperate into metadata and GRange data using matrix structure.
-# TO DO: Change 'type' to  'Immutable'?
+# GRanges type; poorly approximated TO DO: Write simple constructor?
+# Seperate into metadata and GRange data using matrix structure.  TO
+# DO: Change 'type' to 'Immutable'?
 
 type GRanges
     granges::Vector{GRange}
@@ -29,18 +51,22 @@ type GRanges
     GRanges(granges::Vector{GRange}) = begin
         new(granges)
     end
-
 end
 
-# Show the structure and data contained within the GRanges object; decently approximated
-# This is all assigned directly at initialization; however, you could imagine a constructor that
+# Show the structure and data contained within the GRanges object;
+# decently approximated This is all assigned directly at
+# initialization; however, you could imagine a constructor that
 # automated some of these fields, maybe?
 function show(gr::GRanges)
     println(string("\tGRanges with ", length(gr.granges)," ranges and ", 2, " metadata columns:"))
     println("\t\tseqnames \tranges \t\tstrand \t | \tscore \tGC")
     println("\t\t<String> \t<IRange> \t<Char> \t | \t<Int> \t<Float64>")
     for i = 1:length(gr.granges)
-        println(string("\t", "\t", gr.granges[i].seqname, "\t\t", "[",gr.granges[i].range.start, " ", gr.granges[i].range.finish,"]", "\t\t", gr.granges[i].strand, "\t | \t", gr.granges[i].score, "\t", gr.granges[i].GC))
+        println(string("\t", "\t", gr.granges[i].seqname, "\t\t"
+                       , "[",gr.granges[i].range.start, " "
+                       , gr.granges[i].range.finish,"]", "\t\t"
+                       , gr.granges[i].strand, "\t | \t", gr.granges[i].score
+                       , "\t", gr.granges[i].GC))
     end
     println("\t---")
     print("\tseqlengths:")
@@ -61,7 +87,8 @@ end
 function seqnames(gr::GRanges)
     (uniqueElems, runs) = call_unique_seq(gr)
 
-    println(string("\t", typeof(gr.granges), " of length ", length(gr.granges), " with ", runs," runs"))
+    println(string("\t", typeof(gr.granges), " of length "
+                   , length(gr.granges), " with ", runs," runs"))
 
     print("\tLengths:\t")
     count = 0
@@ -79,8 +106,7 @@ function seqnames(gr::GRanges)
         end
     end
     println(count)
-
-
+    
     print("\tValues:\t\t")
     seq = ""
     for i = 1:length(gr.granges)
@@ -156,8 +182,10 @@ function strand(gr::GRanges)
 
 end
 
-# Right now I have poorly inserted what is termed metadata at the top; when writing this function we'll have to define some kind of structure and matrix
-# for holding metadata. (Impact: GRanges, show, and probably most other functions if this isn't handled soon
+# Right now I have poorly inserted what is termed metadata at the top;
+# when writing this function we'll have to define some kind of
+# structure and matrix for holding metadata. (Impact: GRanges, show,
+# and probably most other functions if this isn't handled soon
 function mcols(gr::GRanges)
     print("\tDataFrame with X rows and Y columns")
     print("\n\t\tscore\t\t")
@@ -167,8 +195,6 @@ function mcols(gr::GRanges)
     for i = 1:length(gr.granges)
         println(string("\t", i, "\t\t", gr.granges[i].score, "\t", gr.granges[i].GC))
     end
-
-
 end
 
 
@@ -179,7 +205,7 @@ function names(gr::GRanges)
 
     print("\t[1] ")
     for i = 1:length(gr.granges)
-         print(string(gr.granges[i].range.name, " "))
+        print(string(gr.granges[i].range.name, " "))
     end
     print("\n")
 
@@ -213,7 +239,9 @@ function head(gr::GRanges, n::Int)
     end
 
     sample = gr.granges[1:n]
-    show(GRanges(sample))
+    ret = GRanges(sample)
+    show(ret)
+    return ret
 end
 
 function rep(gr::GRanges, times::Int)
@@ -258,12 +286,24 @@ function window(gr::GRanges, start::Int, finish::Int)
 end
 
 function seqselect(gr::GRanges, start::Array{Int32}, finish::Array{Int32})
-   if (size(start)[1] == 1 && size(start)[2] == 2 && size(finish)[1] == 1 && size(finish)[2] == 2)
-    if (start[1, 1] < start[1,2] && finish[1,1] < finish[1,2] && start[1,2] <= len(gr) && start[1,1] > 0 && finish[1,2] <= len(gr) && finish[1,2] > 0)
+    if (size(start)[1] == 1 
+        && size(start)[2] == 2
+        && size(finish)[1] == 1
+        && size(finish)[2] == 2)
+        if (
+            start[1, 1] < start[1,2]
+            && finish[1,1] < finish[1,2]
+            && start[1,2] <= len(gr)
+            && start[1,1] > 0
+            && finish[1,2] <= len(gr)
+            && finish[1,2] > 0)
             count = 0
-
             for i = 1:len(gr)
-                if ((gr.granges[i].range.start >= start[1,1] && gr.granges[i].range.start <= start[1,2]) || (gr.granges[i].range.start >= finish[1,1] && gr.granges[i].range.start <= finish[1,2]))
+                if ((gr.granges[i].range.start >= start[1,1] 
+                     && gr.granges[i].range.start <= start[1,2])
+                    || 
+                    (gr.granges[i].range.start >= finish[1,1]
+                     && gr.granges[i].range.start <= finish[1,2]))
                     count = count + 1
                 end
             end
@@ -272,7 +312,11 @@ function seqselect(gr::GRanges, start::Array{Int32}, finish::Array{Int32})
                 sample = Array(GRange, count)
                 count = 1
                 for i = 1:len(gr)
-                    if ((gr.granges[i].range.start >= start[1,1] && gr.granges[i].range.start <= start[1,2]) || (gr.granges[i].range.start >= finish[1,1] && gr.granges[i].range.start <= finish[1,2]))
+                    if (
+                        (gr.granges[i].range.start >= start[1,1]
+                         && gr.granges[i].range.start <= start[1,2])
+                        || (gr.granges[i].range.start >= finish[1,1]
+                            && gr.granges[i].range.start <= finish[1,2]))
                         sample[count] = gr.granges[i]
                         count = count + 1
                     end
@@ -347,32 +391,57 @@ function shift(gr::GRanges, n::Int)
     print("Function Incomplete")
 end
 
+# Resize a GRanges object.
 function resize(gr::GRanges, n::Int)
     print("Function Incomplete")
 end
 
 function reduce(gr::GRanges)
+    print("Function Incomplete")
 end
 
 function gaps(gr::GRanges)
+    print("Function Incomplete")
 end
 
 function disjoin(gr::GRanges)
+    print("Function Incomplete")
 end
 
 function converage(gr::GRanges)
+    print("Function Incomplete")
 end
 
+# Create a union of two GRanges objects.
 function union(gr::GRanges, br::GRanges)
+
+    for i = 1:len(br)
+        add = true
+        for j = 1:len(gr)
+            if (isequal(gr.granges[j].range, br.granges[i].range))
+                add = false
+                break
+            end
+        end
+        if (add)
+            gr = mergeGRanges(gr, GRanges([br.granges[i]]))
+        end
+    end
+
+    return gr
 end
+
 
 function intersect(gr::GRanges, br::GRanges)
+
 end
 
 function setdiff(gr::GRanges, br::GRanges)
+    print("Function Incomplete")
 end
 
-#INTERNAL FUNCTIONS
+# Internal functions -- not exported.
+
 function call_unique_seq(gr::GRanges)
     runs = 0
     cur = ""
@@ -390,6 +459,7 @@ function call_unique_seq(gr::GRanges)
     uniqueElems = sort(unique(seq))
     return uniqueElems, runs
 end
+
 function call_unique_strand(gr::GRanges)
     runs = 0
     cur = ""
