@@ -377,13 +377,15 @@ function timer(f::Function, n::Integer)
         times[itr] = @elapsed f()
     end
 
-    return times
+    println(times)
+		println(mean(times))
+		println(var(times))
 end
 
-println(timer(construct,5))
-println(timer(query1,5))
-println(timer(query2,5))
-println(timer(query3,5))
+timer(construct,20)
+timer(query1,20)
+timer(query2,20)
+timer(query3,20)
 #benchmark( construct, "construction", 1)
 #benchmark( query1, "query1", 1)
 #benchmark( query2, "query2", 1)
