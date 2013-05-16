@@ -43,9 +43,11 @@ function close_bam(file :: BamFile)
     ccall((:samclose,"libbam"), Void, (Ptr{Void},), file.file)
 end
 
-# Parse a BAM file, given a set of scan parameters.
+# Parse a BAM file, given a set of scan parameters.  Use the
+# simplified wrapper to SAMtools to call into it and use its parsing
+# utilities.
 function parse_bam(file :: BamFile, params :: BamScanParams)
-
+    ccall((:parse_bam,"simplebam"), Void, (Ptr{Void},), file.file, start(params), finish(params))
 end
 
 function open_close(fn :: String)
