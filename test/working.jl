@@ -301,7 +301,7 @@ end
 
 # Count the intervals in tree that overlap query.
 # TODO: Wastes memory but works for now...
-function countOverlaps{T <: Interval}( tree::IntervalTree, query::T)
+function countOverlaps( tree::IntervalTree, query::IRange)
 	length( findOverlaps( tree, query))
 end
 
@@ -329,7 +329,7 @@ using Base.Test
 srand(63)
 
 # Construct random intervals.
-n = 100
+n = 1000000
 starts = rand( 1:1000, n)
 finishes = starts + rand( 190:210, n)
 intervals = Array( IRange, n)
@@ -342,9 +342,49 @@ end
 #@test middle(intervals) == (min( starts) + max(finishes)) / 2.0
 
 # Test countOverlaps.
-tree = intervalTree( intervals)
-i = IRange( 0, 1000, nothing)
-findOverlaps( tree, i)#IRange( 0, 1000, nothing))
-#@test countOverlaps( tree, IRange( 0, 1000, nothing)) == n
 
-# TODO: test boundaries, empty query, empty tree, etc...
+tree = intervalTree( intervals)
+
+function construct()
+	tree = intervalTree( intervals)
+end
+
+function query1()
+	q = IRange( 0, 1000, nothing)
+	#findOverlaps( tree, i)#IRange( 0, 1000, nothing))
+	countOverlaps( tree, q)
+end
+
+function query2()
+	q = IRange( 100, 300, nothing)
+	#findOverlaps( tree, i)#IRange( 0, 1000, nothing))
+	countOverlaps( tree, q)
+end
+
+function query3()
+	q = IRange( 650, 850, nothing)
+	#findOverlaps( tree, i)#IRange( 0, 1000, nothing))
+	countOverlaps( tree, q)
+end
+
+#using Benchmark
+function timer(f::Function, n::Integer)
+    # Call once to force JIT compilation
+    f()
+
+    times = Array(Float64, n)
+    for itr in 1:n
+        times[itr] = @elapsed f()
+    end
+
+    return times
+end
+
+println(timer(construct,5))
+println(timer(query1,5))
+println(timer(query2,5))
+println(timer(query3,5))
+#benchmark( construct, "construction", 1)
+#benchmark( query1, "query1", 1)
+#benchmark( query2, "query2", 1)
+#benchmark( query3, "query3", 1)
