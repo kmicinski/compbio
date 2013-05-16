@@ -275,7 +275,28 @@ between genome sequences, along with parsing alignment data into a
 
 \subsection{\code{IRanges}}
 
+\code{IRanges.jl} contains definitions for both the \code{IRange} and
+\code{IRanges} objects. These objects are of the \code{Interval} type and
+the former contains the definition of a range (i.e. start location, end location,
+the width, and a name) and the latter contains a vector of these range
+definitions. The \code{Interval} type has been abstracted and is defined within
+the \code{IntervalDef.jl} file. 
+
 \subsection{\code{GRanges}}
+
+\code{GRanges} are defined across three files: \code{GRange.jl},  \code{GRanges.jl},
+and  \code{GRangesList.jl}. A \code{GRange} wraps metadata around a \code{IRange} and can be added to a vector of these expanded range definitions using \code{GRanges}. The majority of the functions provided by \code{GRanges} allows for manipulating and viewing the record
+definitions, including merging or unioning two \code{GRange} depending on the needs of the user. \code{GRangesList} is merely included to provide a definition for splitting a \code{GRange}. A majority of the functions have been implemented to some degree, though for the purposes of perfoming the \code{countOverlap} operation, the only thing necessary is the struct definition and basic accessors and mutators.
+
+\subsection{\code{ITree}}
+
+
+\subsection{\code{BioRanges}}
+
+At the moment, our package can be used by simply calling the module wrapper:
+
+\code{using BioRanges}
+
 
 \subsection{Parsing BAM Files}
 
@@ -343,7 +364,7 @@ it takes to read in a test data file and map it to memory, run several
 GRange functions, and complete multiple queries to countOverlaps()
 routine.
 
-5.2Results
+\subsection{Results}
 
 With respect to H1 we found...
 
@@ -390,7 +411,7 @@ Bioinformatics community.
   will continue to be overlooked by researchers despite its many
   benefits.  }
 
-6Future Work
+\Section{Future Work}
 
 This study has demonstrated the preliminary development of expansions
 to the current BioSeq (Zea, 2013) package being developed for
